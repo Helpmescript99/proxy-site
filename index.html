@@ -9,9 +9,9 @@
         body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: #000000 url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop') no-repeat center center fixed; background-size: cover; height: 100vh; width: 100vw; overflow: hidden; color: white; user-select: none; }
         
         /* Desktop */
-        #desktop { padding: 20px; display: flex; flex-direction: column; gap: 15px; width: 80px; }
+        #desktop { padding: 20px; display: grid; grid-template-columns: repeat(1, 80px); gap: 15px; height: calc(100vh - 100px); align-content: start; }
         .icon { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 12px; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-        .icon:hover { background: rgba(255,255,255,0.1); backdrop-filter: blur(5px); }
+        .icon:hover { background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); }
         .icon img { width: 40px; height: 40px; margin-bottom: 5px; }
 
         /* Windows */
@@ -26,18 +26,32 @@
         .close { background: #e74c3c; }
 
         /* Taskbar */
-        #taskbar { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); height: 50px; width: 500px; background: rgba(30, 30, 30, 0.8); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 15px; }
-        .taskbar-icon { width: 35px; height: 35px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        #taskbar { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); height: 50px; width: 650px; background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; overflow-x: auto; padding: 0 10px; }
+        .taskbar-icon { min-width: 35px; height: 35px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .taskbar-icon:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
         .taskbar-icon img { width: 24px; height: 24px; }
 
         .content { flex: 1; overflow: auto; background: #1e1e1e; display: flex; flex-direction: column; }
         .iframe-full { width: 100%; height: 100%; border: none; }
 
+        /* Browser UI */
+        #browserToolbar { padding: 8px 15px; background: #202124; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #333; }
+        .nav-btn { background: none; border: none; color: #ccc; font-size: 18px; cursor: pointer; padding: 5px; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;}
+        .nav-btn:hover { background: #333; color: white; }
+        #browserUrl { flex: 1; background: #111; border: 1px solid #444; color: white; padding: 8px 15px; border-radius: 20px; outline: none; font-size: 14px; }
+        #browserUrl:focus { border-color: #0078d4; }
+
         /* Chat UI */
         .chat-container { display: flex; height: 100%; background: #0a0a0a; }
-        .chat-sidebar { width: 250px; background: #111; border-right: 1px solid #333; padding: 15px; }
+        .chat-sidebar { width: 250px; background: #111; border-right: 1px solid #333; display: flex; flex-direction: column; }
+        .chat-sidebar-header { padding: 15px; background: #202c33; font-weight: bold; border-bottom: 1px solid #333; }
+        .chat-list { flex: 1; overflow-y: auto; }
+        .chat-list-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; display: flex; flex-direction: column; gap: 5px; }
+        .chat-list-item:hover { background: #1a1a1a; }
+        .chat-list-item.active { background: #2a3942; }
+        .chat-list-item .code { font-size: 16px; font-weight: bold; color: #00a884; }
         .chat-main { flex: 1; display: flex; flex-direction: column; }
+        .chat-header { padding: 10px 15px; background: #202c33; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
         .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .msg { background: #005c4b; padding: 8px 12px; border-radius: 8px; max-width: 70%; align-self: flex-end; font-size: 14px;}
         .msg.other { background: #202c33; align-self: flex-start; }
@@ -47,12 +61,12 @@
         .chat-input-area button { padding: 10px 20px; border-radius: 20px; border: none; background: #00a884; color: white; cursor: pointer; font-weight: bold;}
         .chat-join { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 15px; }
         .chat-join input { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #444; background: #222; color: white; text-align: center; letter-spacing: 2px; }
-        .chat-join button { padding: 10px 20px; font-size: 16px; border-radius: 6px; border: none; background: #0078d4; color: white; cursor: pointer; }
-        
-        /* Browser */
-        #browserHome { padding: 40px; text-align: center; color: white;}
-        #urlInput { width: 60%; padding: 15px; font-size: 16px; border-radius: 30px; border: none; outline: none; background: #333; color: white; margin-top: 20px; }
-        .browser-btn { padding: 15px 30px; font-size: 16px; border-radius: 30px; border: none; background: #0078d4; color: white; cursor: pointer; margin-left: 10px; }
+
+        /* Code Viewer & Games */
+        .code-viewer { padding: 20px; color: #d4d4d4; font-family: 'Consolas', monospace; font-size: 14px; white-space: pre-wrap; background: #1e1e1e; margin: 0; }
+        .game-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 15px; }
+        .btn { padding: 10px 20px; background: #0078d4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        .btn:hover { background: #106ebe; }
     </style>
 </head>
 <body>
@@ -62,53 +76,65 @@
         <div class="icon" onclick="openApp('ytApp')"><img src="https://img.icons8.com/color/48/000000/youtube-play.png"><span>YouTube</span></div>
         <div class="icon" onclick="openApp('ttApp')"><img src="https://img.icons8.com/color/48/000000/tiktok.png"><span>TikTok</span></div>
         <div class="icon" onclick="openApp('chatApp')"><img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"><span>Chat</span></div>
+        <div class="icon" onclick="openApp('game2048')"><img src="https://img.icons8.com/color/48/000000/2048.png"><span>2048</span></div>
+        <div class="icon" onclick="openApp('gameSnake')"><img src="https://img.icons8.com/color/48/000000/snake.png"><span>Snake</span></div>
+        <div class="icon" onclick="openApp('gameTTT')"><img src="https://img.icons8.com/color/48/000000/tic-tac-toe.png"><span>TicTacToe</span></div>
+        <div class="icon" onclick="openApp('codeApp')"><img src="https://img.icons8.com/color/48/000000/source-code.png"><span>Source</span></div>
     </div>
 
     <!-- Browser -->
-    <div id="proxyApp" class="window" style="width: 900px; height: 600px;">
+    <div id="proxyApp" class="window" style="width: 1000px; height: 700px;">
         <div class="title-bar" onmousedown="startDrag(event, 'proxyApp')"><span class="title-text">Web Browser</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('proxyApp')"></div></div></div>
+        <div id="browserToolbar">
+            <button class="nav-btn" onclick="browserBack()">←</button>
+            <button class="nav-btn" onclick="browserForward()">→</button>
+            <button class="nav-btn" onclick="browserReload()">↻</button>
+            <input type="text" id="browserUrl" placeholder="Search or enter URL" onkeypress="if(event.key==='Enter') browserGo()">
+        </div>
         <div class="content" style="background: #1e1e1e;">
-            <iframe id="browserFrame" class="iframe-full" src="about:blank" style="display:none;"></iframe>
-            <div id="browserHome">
-                <h2>Search the Web</h2>
-                <input type="text" id="urlInput" placeholder="https://en.wikipedia.org" onkeypress="if(event.key==='Enter') navigateBrowser()">
-                <button class="browser-btn" onclick="navigateBrowser()">Go</button>
-            </div>
+            <iframe id="browserFrame" class="iframe-full" src="about:blank"></iframe>
         </div>
     </div>
 
-    <!-- YouTube (Piped) -->
+    <!-- YouTube -->
     <div id="ytApp" class="window">
-        <div class="title-bar" onmousedown="startDrag(event, 'ytApp')"><span class="title-text">YouTube (Piped)</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ytApp')"></div></div></div>
-        <div class="content"><iframe src="https://piped.video" class="iframe-full"></iframe></div>
+        <div class="title-bar" onmousedown="startDrag(event, 'ytApp')"><span class="title-text">YouTube</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ytApp')"></div></div></div>
+        <div class="content"><iframe src="https://yewtu.be" class="iframe-full"></iframe></div>
     </div>
 
-    <!-- TikTok (ProxiTok) -->
+    <!-- TikTok -->
     <div id="ttApp" class="window">
-        <div class="title-bar" onmousedown="startDrag(event, 'ttApp')"><span class="title-text">TikTok (ProxiTok)</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ttApp')"></div></div></div>
-        <div class="content"><iframe src="https://proxitok.pabloferreiro.es" class="iframe-full"></iframe></div>
+        <div class="title-bar" onmousedown="startDrag(event, 'ttApp')"><span class="title-text">TikTok</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ttApp')"></div></div></div>
+        <div class="content"><iframe src="https://proxitok.privacydev.net" class="iframe-full"></iframe></div>
     </div>
 
     <!-- Chat -->
-    <div id="chatApp" class="window" style="width: 700px; height: 500px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'chatApp')"><span class="title-text">Secure Chat</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('chatApp')"></div></div></div>
+    <div id="chatApp" class="window" style="width: 800px; height: 550px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'chatApp')"><span class="title-text">WhatsApp</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('chatApp')"></div></div></div>
         <div class="content">
+            <!-- Join Screen -->
             <div id="chatJoinScreen" class="chat-join">
                 <h2 style="margin:0;">Connect with a Friend</h2>
-                <p style="color: #888; font-size: 14px; margin: 0;">Enter a 6-character code to open a room.</p>
-                <input type="text" id="roomCodeInput" placeholder="ABC123" maxlength="6" oninput="this.value = this.value.toUpperCase()">
-                <button onclick="joinChat()">Connect</button>
+                <p style="color: #888; font-size: 14px; margin: 0;">Enter a code to open or create a room.</p>
+                <input type="text" id="roomCodeInput" placeholder="ABC123" maxlength="10" oninput="this.value = this.value.toUpperCase()">
+                <button class="btn" onclick="joinChat()">Connect</button>
             </div>
+            
+            <!-- WhatsApp Interface -->
             <div id="chatActiveScreen" class="chat-container" style="display: none;">
                 <div class="chat-sidebar">
-                    <div style="font-size: 14px; color: #888;">Room Code:</div>
-                    <div id="activeRoomCode" style="font-size: 24px; font-weight: bold; margin-bottom: 20px; letter-spacing: 2px;"></div>
-                    <button onclick="copyCode()" style="width: 100%; padding: 10px; background: #2a3942; color: white; border: none; border-radius: 6px; cursor: pointer;">Copy Invite Code</button>
-                    <button onclick="location.reload()" style="width: 100%; padding: 10px; background: transparent; color: #e74c3c; border: 1px solid #e74c3c; border-radius: 6px; cursor: pointer; margin-top: 10px;">Leave Room</button>
+                    <div class="chat-sidebar-header">Chats</div>
+                    <div class="chat-list" id="chatList">
+                        <!-- Rooms will be injected here -->
+                    </div>
+                    <div style="padding: 10px;">
+                        <button class="btn" style="width:100%; font-size:12px; padding:8px;" onclick="showJoinScreen()">+ New Chat</button>
+                    </div>
                 </div>
                 <div class="chat-main">
+                    <div class="chat-header" id="activeRoomHeader">Select a chat</div>
                     <div class="chat-messages" id="chatMessages"></div>
-                    <div class="chat-input-area">
+                    <div class="chat-input-area" id="chatInputArea" style="display:none;">
                         <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
                         <button onclick="sendMessage()">Send</button>
                     </div>
@@ -117,14 +143,68 @@
         </div>
     </div>
 
+    <!-- Code Viewer -->
+    <div id="codeApp" class="window" style="width: 700px; height: 500px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'codeApp')"><span class="title-text">Source Code</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('codeApp')"></div></div></div>
+        <div class="content" style="background: #1e1e1e; color: #d4d4d4; font-family: monospace; padding: 20px; white-space: pre-wrap;">
+&lt;!-- This is the HTML for the OS you are using right now --&gt;
+&lt;html&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Hello from the Code Viewer!&lt;/h1&gt;
+    &lt;p&gt;You can read text here.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+        </div>
+    </div>
+
+    <!-- 2048 Game -->
+    <div id="game2048" class="window" style="width: 400px; height: 500px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'game2048')"><span class="title-text">2048</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('game2048')"></div></div></div>
+        <div class="content">
+            <div class="game-container">
+                <h2>2048</h2>
+                <p style="color:#aaa; font-size:14px; margin:0;">Use arrow keys to merge tiles.</p>
+                <canvas id="canvas2048" width="320" height="320" style="background:#bbada0; border-radius:8px;"></canvas>
+                <button class="btn" onclick="init2048()">Restart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Snake Game -->
+    <div id="gameSnake" class="window" style="width: 400px; height: 500px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'gameSnake')"><span class="title-text">Snake</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('gameSnake')"></div></div></div>
+        <div class="content">
+            <div class="game-container">
+                <h2>Snake</h2>
+                <p style="color:#aaa; font-size:14px; margin:0;">Use arrow keys to move.</p>
+                <canvas id="canvasSnake" width="300" height="300" style="background:#111; border:2px solid #333;"></canvas>
+                <button class="btn" onclick="initSnake()">Restart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tic Tac Toe -->
+    <div id="gameTTT" class="window" style="width: 350px; height: 450px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'gameTTT')"><span class="title-text">Tic-Tac-Toe</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('gameTTT')"></div></div></div>
+        <div class="content">
+            <div class="game-container">
+                <h2>Tic-Tac-Toe</h2>
+                <div id="tttBoard" style="display:grid; grid-template-columns: repeat(3, 80px); gap: 10px; margin: 20px 0;"></div>
+                <h3 id="tttStatus" style="margin:0;">Player X's turn</h3>
+                <button class="btn" onclick="initTTT()">Restart</button>
+            </div>
+        </div>
+    </div>
+
     <div id="taskbar">
         <div class="taskbar-icon" onclick="openApp('proxyApp')"><img src="https://img.icons8.com/color/48/000000/internet-explorer.png"></div>
-        <div class="taskbar-icon" onclick="openApp('ytApp')"><img src="https://img.icons8.com/color/48/000000/youtube-play.png"></div>
-        <div class="taskbar-icon" onclick="openApp('ttApp')"><img src="https://img.icons8.com/color/48/000000/tiktok.png"></div>
         <div class="taskbar-icon" onclick="openApp('chatApp')"><img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"></div>
+        <div class="taskbar-icon" onclick="openApp('ytApp')"><img src="https://img.icons8.com/color/48/000000/youtube-play.png"></div>
+        <div class="taskbar-icon" onclick="openApp('game2048')"><img src="https://img.icons8.com/color/48/000000/2048.png"></div>
     </div>
 
     <script>
+        // --- Window Manager ---
         let zIndex = 10;
         function openApp(id) { const app = document.getElementById(id); app.style.display = 'flex'; app.style.zIndex = ++zIndex; }
         function closeApp(id) { document.getElementById(id).style.display = 'none'; }
@@ -138,30 +218,92 @@
             document.onmouseup = function() { document.removeEventListener('mousemove', onMouseMove); document.onmouseup = null; };
         }
 
-        function navigateBrowser() {
-            const url = document.getElementById('urlInput').value;
+        // --- Browser Logic ---
+        let historyStack = [];
+        let historyIndex = -1;
+        
+        function browserGo() {
+            const url = document.getElementById('browserUrl').value;
             if(!url) return;
-            document.getElementById('browserHome').style.display = 'none';
-            const frame = document.getElementById('browserFrame');
-            frame.style.display = 'block';
-            frame.src = '/p/' + encodeURIComponent(url);
+            loadUrl(url);
+            historyStack = historyStack.slice(0, historyIndex + 1);
+            historyStack.push(url);
+            historyIndex++;
         }
 
-        let currentRoom = ""; let currentUser = "User-" + Math.floor(Math.random() * 999); let chatPollInterval = null;
+        function loadUrl(url) {
+            document.getElementById('browserUrl').value = url;
+            document.getElementById('browserFrame').src = '/p/' + encodeURIComponent(url);
+        }
+
+        function browserBack() {
+            if(historyIndex > 0) { historyIndex--; loadUrl(historyStack[historyIndex]); }
+        }
+
+        function browserForward() {
+            if(historyIndex < historyStack.length - 1) { historyIndex++; loadUrl(historyStack[historyIndex]); }
+        }
+
+        function browserReload() {
+            if(historyIndex >= 0) { loadUrl(historyStack[historyIndex]); }
+        }
+
+        // --- Chat Logic ---
+        let currentRoom = ""; 
+        let currentUser = "User-" + Math.floor(Math.random() * 999); 
+        let chatPollInterval = null;
+        let activeRooms = JSON.parse(localStorage.getItem('chatRooms') || '[]');
+
+        function renderChatList() {
+            const list = document.getElementById('chatList');
+            list.innerHTML = '';
+            activeRooms.forEach(room => {
+                const div = document.createElement('div');
+                div.className = 'chat-list-item ' + (currentRoom === room ? 'active' : '');
+                div.innerHTML = `<span class="code">${room}</span><span style="font-size:12px;color:#888;">Tap to open</span>`;
+                div.onclick = () => switchRoom(room);
+                list.appendChild(div);
+            });
+        }
+
+        function showJoinScreen() {
+            document.getElementById('chatJoinScreen').style.display = 'flex';
+            document.getElementById('chatActiveScreen').style.display = 'none';
+            currentRoom = "";
+        }
+
         function joinChat() {
             const code = document.getElementById('roomCodeInput').value.trim();
-            if(code.length < 4) return alert("Code must be at least 4 chars");
+            if(code.length < 3) return alert("Code must be at least 3 chars");
+            if(!activeRooms.includes(code)) {
+                activeRooms.push(code);
+                localStorage.setItem('chatRooms', JSON.stringify(activeRooms));
+            }
+            switchRoom(code);
+        }
+
+        function switchRoom(code) {
             currentRoom = code;
             document.getElementById('chatJoinScreen').style.display = 'none';
             document.getElementById('chatActiveScreen').style.display = 'flex';
-            document.getElementById('activeRoomCode').innerText = currentRoom;
-            fetchMessages(); chatPollInterval = setInterval(fetchMessages, 2000);
+            document.getElementById('chatInputArea').style.display = 'flex';
+            document.getElementById('activeRoomHeader').innerText = "Room: " + code;
+            renderChatList();
+            
+            document.getElementById('chatMessages').innerHTML = '<div style="text-align:center;color:#888;font-size:12px;margin-top:20px;">Connecting...</div>';
+            
+            if(chatPollInterval) clearInterval(chatPollInterval);
+            fetchMessages(); 
+            chatPollInterval = setInterval(fetchMessages, 2000);
         }
-        function copyCode() { navigator.clipboard.writeText(currentRoom); alert("Code copied: " + currentRoom); }
+
         async function fetchMessages() {
+            if(!currentRoom) return;
             try {
                 const res = await fetch('/api/chat/' + currentRoom); const data = await res.json();
-                const container = document.getElementById('chatMessages'); container.innerHTML = "";
+                const container = document.getElementById('chatMessages'); 
+                container.innerHTML = "";
+                if(data.messages.length === 0) container.innerHTML = '<div style="text-align:center;color:#888;font-size:12px;margin-top:20px;">No messages yet.</div>';
                 data.messages.forEach(msg => {
                     const div = document.createElement('div');
                     div.className = 'msg ' + (msg.user === currentUser ? '' : 'other');
@@ -171,13 +313,145 @@
                 container.scrollTop = container.scrollHeight;
             } catch(e) {}
         }
+
         async function sendMessage() {
+            if(!currentRoom) return;
             const input = document.getElementById('chatInput'); const text = input.value.trim(); if(!text) return;
             input.value = "";
             await fetch('/api/chat/' + currentRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: currentUser, text: text}) });
             fetchMessages();
         }
-        window.onload = () => openApp('proxyApp');
+
+        // --- 2048 Logic ---
+        let grid2048 = [], score2048 = 0;
+        function init2048() {
+            grid2048 = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+            score2048 = 0;
+            addTile2048(); addTile2048();
+            draw2048();
+        }
+        function addTile2048() {
+            let empty = [];
+            for(let r=0; r<4; r++) for(let c=0; c<4; c++) if(grid2048[r][c] === 0) empty.push({r,c});
+            if(empty.length === 0) return;
+            let spot = empty[Math.floor(Math.random() * empty.length)];
+            grid2048[spot.r][spot.c] = Math.random() < 0.9 ? 2 : 4;
+        }
+        function draw2048() {
+            const ctx = document.getElementById('canvas2048').getContext('2d');
+            ctx.fillStyle = "#bbada0"; ctx.fillRect(0,0,320,320);
+            const colors = {0:"#cdc1b4", 2:"#eee4da", 4:"#ede0c8", 8:"#f2b179", 16:"#f59563", 32:"#f67c5f", 64:"#f65e3b", 128:"#edcf72", 256:"#edcc61", 512:"#edc850", 1024:"#edc53f", 2048:"#edc22e"};
+            for(let r=0; r<4; r++) for(let c=0; c<4; c++) {
+                let val = grid2048[r][c];
+                ctx.fillStyle = colors[val] || "#3c3a32";
+                ctx.fillRect(c*80+10, r*80+10, 60, 60);
+                if(val !== 0) {
+                    ctx.fillStyle = val <= 4 ? "#776e65" : "#f9f6f2";
+                    ctx.font = val > 100 ? "bold 24px sans-serif" : "bold 32px sans-serif";
+                    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                    ctx.fillText(val, c*80+40, r*80+40);
+                }
+            }
+        }
+        window.addEventListener('keydown', e => {
+            if(document.getElementById('game2048').style.display === 'none') return;
+            let moved = false;
+            let oldGrid = JSON.stringify(grid2048);
+            let key = e.key;
+            if(key === 'ArrowUp') grid2048 = rotate2048(grid2048, 3);
+            else if(key === 'ArrowDown') grid2048 = rotate2048(grid2048, 1);
+            else if(key === 'ArrowLeft') grid2048 = rotate2048(grid2048, 2);
+            else if(key === 'ArrowRight') grid2048 = rotate2048(grid2048, 0);
+            else return;
+            
+            for(let r=0; r<4; r++) {
+                let row = grid2048[r].filter(v => v);
+                for(let i=0; i<row.length-1; i++) {
+                    if(row[i] === row[i+1]) { row[i]*=2; row.splice(i+1,1); }
+                }
+                while(row.length < 4) row.push(0);
+                grid2048[r] = row;
+            }
+            if(key === 'ArrowUp') grid2048 = rotate2048(grid2048, 1);
+            else if(key === 'ArrowDown') grid2048 = rotate2048(grid2048, 3);
+            else if(key === 'ArrowLeft') grid2048 = rotate2048(grid2048, 0);
+            else if(key === 'ArrowRight') grid2048 = rotate2048(grid2048, 2);
+            
+            if(JSON.stringify(grid2048) !== oldGrid) { addTile2048(); draw2048(); }
+        });
+        function rotate2048(g, times) {
+            let res = g;
+            for(let t=0; t<times; t++) {
+                let newG = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+                for(let r=0; r<4; r++) for(let c=0; c<4; c++) newG[c][3-r] = res[r][c];
+                res = newG;
+            }
+            return res;
+        }
+
+        // --- Snake Logic ---
+        let snake, dir, food, snakeInterval;
+        function initSnake() {
+            snake = [{x:10, y:10}]; dir = {x:0, y:0}; food = {x:15, y:15};
+            if(snakeInterval) clearInterval(snakeInterval);
+            snakeInterval = setInterval(moveSnake, 100);
+        }
+        function moveSnake() {
+            if(dir.x === 0 && dir.y === 0) return;
+            let head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+            if(head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) return initSnake();
+            for(let i=0; i<snake.length; i++) if(snake[i].x === head.x && snake[i].y === head.y) return initSnake();
+            snake.unshift(head);
+            if(head.x === food.x && head.y === food.y) {
+                food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
+            } else { snake.pop(); }
+            drawSnake();
+        }
+        function drawSnake() {
+            const ctx = document.getElementById('canvasSnake').getContext('2d');
+            ctx.fillStyle = "#111"; ctx.fillRect(0,0,300,300);
+            ctx.fillStyle = "#e74c3c"; ctx.fillRect(food.x*15, food.y*15, 15, 15);
+            ctx.fillStyle = "#2ecc71";
+            snake.forEach(s => ctx.fillRect(s.x*15, s.y*15, 14, 14));
+        }
+        window.addEventListener('keydown', e => {
+            if(document.getElementById('gameSnake').style.display === 'none') return;
+            if(e.key === 'ArrowUp' && dir.y === 0) dir = {x:0, y:-1};
+            if(e.key === 'ArrowDown' && dir.y === 0) dir = {x:0, y:1};
+            if(e.key === 'ArrowLeft' && dir.x === 0) dir = {x:-1, y:0};
+            if(e.key === 'ArrowRight' && dir.x === 0) dir = {x:1, y:0};
+        });
+
+        // --- TicTacToe Logic ---
+        let tttBoard = [], tttPlayer = "X", tttActive = true;
+        function initTTT() {
+            tttBoard = ["","","","","","","","",""]; tttPlayer = "X"; tttActive = true;
+            document.getElementById('tttStatus').innerText = "Player X's turn";
+            const boardDiv = document.getElementById('tttBoard');
+            boardDiv.innerHTML = "";
+            for(let i=0; i<9; i++) {
+                let cell = document.createElement('div');
+                cell.style.cssText = "width:80px;height:80px;background:#333;display:flex;align-items:center;justify-content:center;font-size:40px;cursor:pointer;border-radius:8px;";
+                cell.onclick = () => playTTT(i, cell);
+                boardDiv.appendChild(cell);
+            }
+        }
+        function playTTT(i, cell) {
+            if(!tttActive || tttBoard[i] !== "") return;
+            tttBoard[i] = tttPlayer; cell.innerText = tttPlayer;
+            cell.style.color = tttPlayer === "X" ? "#3498db" : "#e74c3c";
+            if(checkTTT()) { document.getElementById('tttStatus').innerText = tttPlayer + " Wins!"; tttActive = false; return; }
+            if(!tttBoard.includes("")) { document.getElementById('tttStatus').innerText = "Tie!"; tttActive = false; return; }
+            tttPlayer = tttPlayer === "X" ? "O" : "X";
+            document.getElementById('tttStatus').innerText = "Player " + tttPlayer + "'s turn";
+        }
+        function checkTTT() {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return wins.some(w => tttBoard[w[0]] && tttBoard[w[0]] === tttBoard[w[1]] && tttBoard[w[0]] === tttBoard[w[2]]);
+        }
+
+        // Init
+        window.onload = () => { openApp('proxyApp'); init2048(); initSnake(); initTTT(); renderChatList(); };
     </script>
 </body>
 </html>

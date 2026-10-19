@@ -65,9 +65,16 @@ def rewrite_css(css: str, base: str) -> str:
 
 def rewrite_html(body: str, base: str) -> str:
     soup = BeautifulSoup(body, "html.parser")
+    
+    # Base tag for relative links
+    if soup.head:
+        base_tag = soup.new_tag("base", href=f"{PROXY_PREFIX}{enc(base)}")
+        soup.head.insert(0, base_tag)
+    
     for tag, attr in [("a", "href"), ("link", "href"), ("area", "href"), ("script", "src"), ("img", "src"), ("iframe", "src"), ("frame", "src"), ("video", "src"), ("audio", "src"), ("source", "src"), ("track", "src"), ("embed", "src"), ("input", "src"), ("form", "action")]:
         for el in soup.find_all(tag):
             if el.has_attr(attr): el[attr] = rewrite_attr(base, el[attr])
+            
     for el in soup.find_all(attrs={"srcset": True}):
         parts = []
         for chunk in el["srcset"].split(","):
@@ -77,9 +84,11 @@ def rewrite_html(body: str, base: str) -> str:
             bits[0] = rewrite_attr(base, bits[0])
             parts.append(" ".join(bits))
         el["srcset"] = ", ".join(parts)
+        
     for el in soup.find_all(style=True): el["style"] = rewrite_css(el["style"], base)
     for el in soup.find_all("style"):
         if el.string: el.string = rewrite_css(el.string, base)
+        
     for el in soup.find_all(attrs={"integrity": True}): del el["integrity"]
     for el in soup.find_all(attrs={"crossorigin": True}): del el["crossorigin"]
     
@@ -122,7 +131,6 @@ def forward(url: str) -> Response:
         return Response(rewrite_css(raw, upstream.url), status=upstream.status_code, headers=out_headers, mimetype="text/css")
     return Response(body_bytes, status=upstream.status_code, headers=out_headers, mimetype=ctype or None)
 
-# --- API ROUTES ---
 @app.route("/api/chat/<room>", methods=["GET", "POST"])
 def chat_api(room):
     if request.method == "POST":
