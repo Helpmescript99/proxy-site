@@ -6,75 +6,38 @@
     <title>Win11 Web OS</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap');
-
-        body {
-            margin: 0; padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #000000 url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop') no-repeat center center fixed;
-            background-size: cover;
-            height: 100vh; width: 100vw;
-            overflow: hidden; color: white;
-            user-select: none;
-        }
-
-        /* Desktop Icons */
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: #000000 url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop') no-repeat center center fixed; background-size: cover; height: 100vh; width: 100vw; overflow: hidden; color: white; user-select: none; }
+        
+        /* Desktop */
         #desktop { padding: 20px; display: flex; flex-direction: column; gap: 15px; width: 80px; }
-        .icon {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s;
-            font-size: 12px; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-        }
+        .icon { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 12px; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
         .icon:hover { background: rgba(255,255,255,0.1); backdrop-filter: blur(5px); }
         .icon img { width: 40px; height: 40px; margin-bottom: 5px; }
 
-        /* Window Manager */
-        .window {
-            position: absolute; top: 10%; left: 20%;
-            width: 800px; height: 550px;
-            background: rgba(20, 20, 20, 0.85);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: none; flex-direction: column; overflow: hidden;
-            resize: both; min-width: 300px; min-height: 200px;
-        }
+        /* Windows */
+        .window { position: absolute; top: 10%; left: 20%; width: 800px; height: 550px; background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; flex-direction: column; overflow: hidden; resize: both; min-width: 300px; min-height: 200px; }
         
         /* Title Bar */
-        .title-bar {
-            padding: 10px 15px; background: rgba(0, 0, 0, 0.5);
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: grab; border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
+        .title-bar { padding: 10px 15px; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: space-between; align-items: center; cursor: grab; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .title-bar:active { cursor: grabbing; }
         .title-text { font-size: 14px; font-weight: 600; }
         .controls { display: flex; gap: 10px; }
-        .ctrl-btn { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px;}
-        .ctrl-btn:hover { opacity: 0.8; }
-        .min { background: #f1c40f; } .max { background: #2ecc71; } .close { background: #e74c3c; }
-
-        /* Window Content */
-        .content { flex: 1; overflow: auto; background: #1e1e1e; display: flex; flex-direction: column; }
+        .ctrl-btn { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; }
+        .close { background: #e74c3c; }
 
         /* Taskbar */
-        #taskbar {
-            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-            height: 50px; width: 500px;
-            background: rgba(30, 30, 30, 0.8);
-            backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 15px;
-        }
-        .taskbar-icon {
-            width: 35px; height: 35px; border-radius: 6px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: 0.2s;
-        }
+        #taskbar { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); height: 50px; width: 500px; background: rgba(30, 30, 30, 0.8); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .taskbar-icon { width: 35px; height: 35px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .taskbar-icon:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
         .taskbar-icon img { width: 24px; height: 24px; }
 
-        /* Chat App Specifics */
-        .chat-container { display: flex; height: 100%; }
+        .content { flex: 1; overflow: auto; background: #1e1e1e; display: flex; flex-direction: column; }
+        .iframe-full { width: 100%; height: 100%; border: none; }
+
+        /* Chat UI */
+        .chat-container { display: flex; height: 100%; background: #0a0a0a; }
         .chat-sidebar { width: 250px; background: #111; border-right: 1px solid #333; padding: 15px; }
-        .chat-main { flex: 1; display: flex; flex-direction: column; background: #0a0a0a; }
+        .chat-main { flex: 1; display: flex; flex-direction: column; }
         .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .msg { background: #005c4b; padding: 8px 12px; border-radius: 8px; max-width: 70%; align-self: flex-end; font-size: 14px;}
         .msg.other { background: #202c33; align-self: flex-start; }
@@ -82,80 +45,60 @@
         .chat-input-area { padding: 10px; background: #111; display: flex; gap: 10px; }
         .chat-input-area input { flex: 1; padding: 10px; border-radius: 20px; border: none; background: #2a3942; color: white; outline: none; }
         .chat-input-area button { padding: 10px 20px; border-radius: 20px; border: none; background: #00a884; color: white; cursor: pointer; font-weight: bold;}
-        
-        /* Chat Join Screen */
         .chat-join { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 15px; }
         .chat-join input { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #444; background: #222; color: white; text-align: center; letter-spacing: 2px; }
         .chat-join button { padding: 10px 20px; font-size: 16px; border-radius: 6px; border: none; background: #0078d4; color: white; cursor: pointer; }
         
-        /* YouTube App */
-        .yt-container { width: 100%; height: 100%; border: none; }
+        /* Browser */
+        #browserHome { padding: 40px; text-align: center; color: white;}
+        #urlInput { width: 60%; padding: 15px; font-size: 16px; border-radius: 30px; border: none; outline: none; background: #333; color: white; margin-top: 20px; }
+        .browser-btn { padding: 15px 30px; font-size: 16px; border-radius: 30px; border: none; background: #0078d4; color: white; cursor: pointer; margin-left: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- Desktop Icons -->
     <div id="desktop">
-        <div class="icon" onclick="openApp('proxyApp')">
-            <img src="https://img.icons8.com/color/48/000000/internet-explorer.png">
-            <span>Browser</span>
-        </div>
-        <div class="icon" onclick="openApp('ytApp')">
-            <img src="https://img.icons8.com/color/48/000000/youtube-play.png">
-            <span>YouTube</span>
-        </div>
-        <div class="icon" onclick="openApp('chatApp')">
-            <img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png">
-            <span>Chat</span>
-        </div>
+        <div class="icon" onclick="openApp('proxyApp')"><img src="https://img.icons8.com/color/48/000000/internet-explorer.png"><span>Browser</span></div>
+        <div class="icon" onclick="openApp('ytApp')"><img src="https://img.icons8.com/color/48/000000/youtube-play.png"><span>YouTube</span></div>
+        <div class="icon" onclick="openApp('ttApp')"><img src="https://img.icons8.com/color/48/000000/tiktok.png"><span>TikTok</span></div>
+        <div class="icon" onclick="openApp('chatApp')"><img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"><span>Chat</span></div>
     </div>
 
-    <!-- Apps -->
-
-    <!-- 1. Browser App -->
+    <!-- Browser -->
     <div id="proxyApp" class="window" style="width: 900px; height: 600px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'proxyApp')">
-            <span class="title-text">Web Browser</span>
-            <div class="controls"><div class="ctrl-btn close" onclick="closeApp('proxyApp')">×</div></div>
-        </div>
-        <div class="content" style="background: #fff;">
-            <iframe id="browserFrame" class="yt-container" src="about:blank"></iframe>
-            <div style="padding: 20px; text-align: center;" id="browserHome">
-                <h2 style="color: black;">Web Browser</h2>
-                <input type="text" id="urlInput" placeholder="https://en.wikipedia.org" style="width: 60%; padding: 10px; font-size: 16px; margin-top: 20px;" onkeypress="if(event.key==='Enter') navigateBrowser()">
-                <button onclick="navigateBrowser()" style="padding: 10px 20px; font-size: 16px; margin-left: 10px;">Go</button>
+        <div class="title-bar" onmousedown="startDrag(event, 'proxyApp')"><span class="title-text">Web Browser</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('proxyApp')"></div></div></div>
+        <div class="content" style="background: #1e1e1e;">
+            <iframe id="browserFrame" class="iframe-full" src="about:blank" style="display:none;"></iframe>
+            <div id="browserHome">
+                <h2>Search the Web</h2>
+                <input type="text" id="urlInput" placeholder="https://en.wikipedia.org" onkeypress="if(event.key==='Enter') navigateBrowser()">
+                <button class="browser-btn" onclick="navigateBrowser()">Go</button>
             </div>
         </div>
     </div>
 
-    <!-- 2. YouTube App -->
+    <!-- YouTube (Piped) -->
     <div id="ytApp" class="window">
-        <div class="title-bar" onmousedown="startDrag(event, 'ytApp')">
-            <span class="title-text">YouTube</span>
-            <div class="controls"><div class="ctrl-btn close" onclick="closeApp('ytApp')">×</div></div>
-        </div>
-        <div class="content">
-            <!-- We use Piped.video as a lightweight YouTube frontend -->
-            <iframe src="https://piped.video" class="yt-container"></iframe>
-        </div>
+        <div class="title-bar" onmousedown="startDrag(event, 'ytApp')"><span class="title-text">YouTube (Piped)</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ytApp')"></div></div></div>
+        <div class="content"><iframe src="https://piped.video" class="iframe-full"></iframe></div>
     </div>
 
-    <!-- 3. Chat App -->
+    <!-- TikTok (ProxiTok) -->
+    <div id="ttApp" class="window">
+        <div class="title-bar" onmousedown="startDrag(event, 'ttApp')"><span class="title-text">TikTok (ProxiTok)</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ttApp')"></div></div></div>
+        <div class="content"><iframe src="https://proxitok.pabloferreiro.es" class="iframe-full"></iframe></div>
+    </div>
+
+    <!-- Chat -->
     <div id="chatApp" class="window" style="width: 700px; height: 500px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'chatApp')">
-            <span class="title-text">Secure Chat</span>
-            <div class="controls"><div class="ctrl-btn close" onclick="closeApp('chatApp')">×</div></div>
-        </div>
+        <div class="title-bar" onmousedown="startDrag(event, 'chatApp')"><span class="title-text">Secure Chat</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('chatApp')"></div></div></div>
         <div class="content">
-            <!-- Join Screen -->
             <div id="chatJoinScreen" class="chat-join">
                 <h2 style="margin:0;">Connect with a Friend</h2>
                 <p style="color: #888; font-size: 14px; margin: 0;">Enter a 6-character code to open a room.</p>
                 <input type="text" id="roomCodeInput" placeholder="ABC123" maxlength="6" oninput="this.value = this.value.toUpperCase()">
                 <button onclick="joinChat()">Connect</button>
             </div>
-            
-            <!-- Active Chat Screen -->
             <div id="chatActiveScreen" class="chat-container" style="display: none;">
                 <div class="chat-sidebar">
                     <div style="font-size: 14px; color: #888;">Room Code:</div>
@@ -174,61 +117,37 @@
         </div>
     </div>
 
-    <!-- Taskbar -->
     <div id="taskbar">
         <div class="taskbar-icon" onclick="openApp('proxyApp')"><img src="https://img.icons8.com/color/48/000000/internet-explorer.png"></div>
         <div class="taskbar-icon" onclick="openApp('ytApp')"><img src="https://img.icons8.com/color/48/000000/youtube-play.png"></div>
+        <div class="taskbar-icon" onclick="openApp('ttApp')"><img src="https://img.icons8.com/color/48/000000/tiktok.png"></div>
         <div class="taskbar-icon" onclick="openApp('chatApp')"><img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"></div>
     </div>
 
     <script>
-        // --- Window Manager Logic ---
         let zIndex = 10;
-
-        function openApp(id) {
-            const app = document.getElementById(id);
-            app.style.display = 'flex';
-            app.style.zIndex = ++zIndex;
-            if(id === 'proxyApp') document.getElementById('browserHome').style.display = 'block';
-        }
-
-        function closeApp(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-
+        function openApp(id) { const app = document.getElementById(id); app.style.display = 'flex'; app.style.zIndex = ++zIndex; }
+        function closeApp(id) { document.getElementById(id).style.display = 'none'; }
         function startDrag(e, id) {
-            const el = document.getElementById(id);
-            const rect = el.getBoundingClientRect();
-            const shiftX = e.clientX - rect.left;
-            const shiftY = e.clientY - rect.top;
+            const el = document.getElementById(id); const rect = el.getBoundingClientRect();
+            const shiftX = e.clientX - rect.left; const shiftY = e.clientY - rect.top;
             el.style.zIndex = ++zIndex;
-
-            function moveAt(pageX, pageY) {
-                el.style.left = pageX - shiftX + 'px';
-                el.style.top = pageY - shiftY + 'px';
-            }
-
+            function moveAt(pageX, pageY) { el.style.left = pageX - shiftX + 'px'; el.style.top = pageY - shiftY + 'px'; }
             function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
             document.addEventListener('mousemove', onMouseMove);
-            document.onmouseup = function() {
-                document.removeEventListener('mousemove', onMouseMove);
-                document.onmouseup = null;
-            };
+            document.onmouseup = function() { document.removeEventListener('mousemove', onMouseMove); document.onmouseup = null; };
         }
 
-        // --- Browser App Logic ---
         function navigateBrowser() {
             const url = document.getElementById('urlInput').value;
             if(!url) return;
             document.getElementById('browserHome').style.display = 'none';
-            document.getElementById('browserFrame').src = '/p/' + encodeURIComponent(url);
+            const frame = document.getElementById('browserFrame');
+            frame.style.display = 'block';
+            frame.src = '/p/' + encodeURIComponent(url);
         }
 
-        // --- Chat App Logic ---
-        let currentRoom = "";
-        let currentUser = "User-" + Math.floor(Math.random() * 999);
-        let chatPollInterval = null;
-
+        let currentRoom = ""; let currentUser = "User-" + Math.floor(Math.random() * 999); let chatPollInterval = null;
         function joinChat() {
             const code = document.getElementById('roomCodeInput').value.trim();
             if(code.length < 4) return alert("Code must be at least 4 chars");
@@ -236,23 +155,13 @@
             document.getElementById('chatJoinScreen').style.display = 'none';
             document.getElementById('chatActiveScreen').style.display = 'flex';
             document.getElementById('activeRoomCode').innerText = currentRoom;
-            
-            fetchMessages();
-            chatPollInterval = setInterval(fetchMessages, 2000);
+            fetchMessages(); chatPollInterval = setInterval(fetchMessages, 2000);
         }
-
-        function copyCode() {
-            navigator.clipboard.writeText(currentRoom);
-            alert("Code copied: " + currentRoom);
-        }
-
+        function copyCode() { navigator.clipboard.writeText(currentRoom); alert("Code copied: " + currentRoom); }
         async function fetchMessages() {
             try {
-                const res = await fetch('/api/chat/' + currentRoom);
-                const data = await res.json();
-                const container = document.getElementById('chatMessages');
-                container.innerHTML = "";
-                
+                const res = await fetch('/api/chat/' + currentRoom); const data = await res.json();
+                const container = document.getElementById('chatMessages'); container.innerHTML = "";
                 data.messages.forEach(msg => {
                     const div = document.createElement('div');
                     div.className = 'msg ' + (msg.user === currentUser ? '' : 'other');
@@ -262,22 +171,12 @@
                 container.scrollTop = container.scrollHeight;
             } catch(e) {}
         }
-
         async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if(!text) return;
-            
+            const input = document.getElementById('chatInput'); const text = input.value.trim(); if(!text) return;
             input.value = "";
-            await fetch('/api/chat/' + currentRoom, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({user: currentUser, text: text})
-            });
+            await fetch('/api/chat/' + currentRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: currentUser, text: text}) });
             fetchMessages();
         }
-
-        // Open browser by default on load
         window.onload = () => openApp('proxyApp');
     </script>
 </body>

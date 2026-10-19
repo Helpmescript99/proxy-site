@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 import re
 import time
+import json
 from urllib.parse import urljoin, quote, unquote
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask, request, Response, render_template_string
+from flask import Flask, request, Response
 
 app = Flask(__name__)
 
-# --- Chat Database (In-Memory) ---
-CHAT_DB = {} # format: { "room_code": [ {"user": "...", "text": "...", "time": "..."} ] }
+# --- REAL CHAT DATABASE (In-Memory) ---
+CHAT_DB = {} 
 
 UPSTREAM_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 PROXY_PREFIX = "/p/"
@@ -121,26 +122,19 @@ def forward(url: str) -> Response:
         return Response(rewrite_css(raw, upstream.url), status=upstream.status_code, headers=out_headers, mimetype="text/css")
     return Response(body_bytes, status=upstream.status_code, headers=out_headers, mimetype=ctype or None)
 
-# -----------------------------------------------------------------------------
-# Chat API Routes
-# -----------------------------------------------------------------------------
+# --- API ROUTES ---
 @app.route("/api/chat/<room>", methods=["GET", "POST"])
 def chat_api(room):
     if request.method == "POST":
         data = request.json
         if room not in CHAT_DB: CHAT_DB[room] = []
         CHAT_DB[room].append({"user": data.get("user", "Anon"), "text": data.get("text", ""), "time": time.strftime("%H:%M")})
-        # Keep only last 50 messages per room
         if len(CHAT_DB[room]) > 50: CHAT_DB[room].pop(0)
         return {"status": "ok"}
     return {"messages": CHAT_DB.get(room, [])}
 
-# -----------------------------------------------------------------------------
-# Main Routes
-# -----------------------------------------------------------------------------
 @app.route("/")
 def index():
-    # This loads the HTML file from the same folder
     with open("index.html", "r", encoding="utf-8") as f:
         return f.read()
 
