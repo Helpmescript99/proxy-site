@@ -23,10 +23,10 @@ UPSTREAM_UA = (
 )
 PROXY_PREFIX = "/p/"
 TIMEOUT = 15
-MAX_BYTES = 8 * 1024 * 1024  # 8 MB cap — refuse giant binaries
+MAX_BYTES = 8 * 1024 * 1024  # 8 MB cap
 
 session = requests.Session()
-session.trust_env = False  # don't loop through a host-level HTTP_PROXY
+session.trust_env = False
 session.headers.update({
     "User-Agent": UPSTREAM_UA,
     "Accept-Language": "en-US,en;q=0.9",
@@ -61,7 +61,7 @@ CSS_URL_RE = re.compile(r"""url\(\s*(['"]?)(.*?)\1\s*\)""", re.I)
 HOP_HEADERS = {
     "connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
     "te", "trailers", "transfer-encoding", "upgrade",
-    "content-encoding", "content-length",
+    "content-encoding", "content-length", "accept-encoding",
 }
 
 # -----------------------------------------------------------------------------
@@ -69,7 +69,6 @@ HOP_HEADERS = {
 # -----------------------------------------------------------------------------
 def enc(url: str) -> str:
     return quote(url, safe="")
-
 
 def rewrite_attr(base: str, value: str) -> str:
     if not value:
@@ -82,13 +81,11 @@ def rewrite_attr(base: str, value: str) -> str:
         return PROXY_PREFIX + enc(absolute)
     return value
 
-
 def rewrite_css(css: str, base: str) -> str:
     return CSS_URL_RE.sub(
         lambda m: "url(%s)" % rewrite_attr(base, m.group(2)),
         css,
     )
-
 
 def rewrite_html(body: str, base: str) -> str:
     soup = BeautifulSoup(body, "html.parser")
@@ -104,7 +101,6 @@ def rewrite_html(body: str, base: str) -> str:
             if el.has_attr(attr):
                 el[attr] = rewrite_attr(base, el[attr])
 
-    # srcset
     for el in soup.find_all(attrs={"srcset": True}):
         parts = []
         for chunk in el["srcset"].split(","):
@@ -116,14 +112,12 @@ def rewrite_html(body: str, base: str) -> str:
             parts.append(" ".join(bits))
         el["srcset"] = ", ".join(parts)
 
-    # inline style + <style> blocks
     for el in soup.find_all(style=True):
         el["style"] = rewrite_css(el["style"], base)
     for el in soup.find_all("style"):
         if el.string:
             el.string = rewrite_css(el.string, base)
 
-    # SRI + crossorigin can't survive rewriting
     for el in soup.find_all(attrs={"integrity": True}):
         del el["integrity"]
     for el in soup.find_all(attrs={"crossorigin": True}):
@@ -150,7 +144,6 @@ def forward(url: str) -> Response:
         and k.lower() not in ("host", "referer", "origin", "cookie")
     }
 
-    # if the browser sent a Referer that was itself proxied, un-proxy it upstream
     ref = request.headers.get("Referer", "")
     if ref.startswith(PROXY_PREFIX):
         fwd_headers["Referer"] = unquote(ref[len(PROXY_PREFIX):])
@@ -187,10 +180,18 @@ def forward(url: str) -> Response:
     if loc:
         out_headers["Location"] = rewrite_attr(url, loc)
 
+    # Read with iter_content to let requests handle Brotli/Gzip decompression
+    body_bytes = b""
+    try:
+        for chunk in upstream.iter_content(chunk_size=8192):
+            body_bytes += chunk
+            if len(body_bytes) > MAX_BYTES:
+                break
+    except Exception as e:
+        return Response(f"Read error: {e}", status=502, mimetype="text/plain")
+
     if "text/html" in ctype:
-        raw = upstream.raw.read(MAX_BYTES, decode_content=True).decode(
-            upstream.encoding or "utf-8", "replace"
-        )
+        raw = body_bytes.decode(upstream.encoding or "utf-8", "replace")
         return Response(
             rewrite_html(raw, upstream.url),
             status=upstream.status_code,
@@ -199,9 +200,7 @@ def forward(url: str) -> Response:
         )
 
     if "text/css" in ctype:
-        raw = upstream.raw.read(MAX_BYTES, decode_content=True).decode(
-            upstream.encoding or "utf-8", "replace"
-        )
+        raw = body_bytes.decode(upstream.encoding or "utf-8", "replace")
         return Response(
             rewrite_css(raw, upstream.url),
             status=upstream.status_code,
@@ -209,9 +208,8 @@ def forward(url: str) -> Response:
             mimetype="text/css",
         )
 
-    body = upstream.raw.read(MAX_BYTES, decode_content=True)
     return Response(
-        body,
+        body_bytes,
         status=upstream.status_code,
         headers=out_headers,
         mimetype=ctype or None,
@@ -231,11 +229,9 @@ LAUNCHER = """<!doctype html>
 </body>
 """
 
-
 @app.route("/")
 def index():
     return Response(LAUNCHER, mimetype="text/html")
-
 
 @app.route("/p/<path:encoded>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 def proxy(encoded):
@@ -243,7 +239,6 @@ def proxy(encoded):
     if not target.startswith(("http://", "https://")):
         return Response("bad url", status=400)
     return forward(target)
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
