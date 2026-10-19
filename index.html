@@ -8,16 +8,13 @@
         @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap');
         body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: #000000 url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop') no-repeat center center fixed; background-size: cover; height: 100vh; width: 100vw; overflow: hidden; color: white; user-select: none; }
         
-        /* Desktop */
-        #desktop { padding: 20px; display: grid; grid-template-columns: repeat(1, 80px); gap: 15px; height: calc(100vh - 100px); align-content: start; }
+        #desktop { padding: 20px; display: grid; grid-template-columns: repeat(2, 80px); gap: 15px; height: calc(100vh - 100px); align-content: start; }
         .icon { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 12px; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
         .icon:hover { background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); }
         .icon img { width: 40px; height: 40px; margin-bottom: 5px; }
 
-        /* Windows */
-        .window { position: absolute; top: 10%; left: 20%; width: 800px; height: 550px; background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; flex-direction: column; overflow: hidden; resize: both; min-width: 300px; min-height: 200px; }
+        .window { position: absolute; top: 5%; left: 15%; width: 800px; height: 550px; background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; flex-direction: column; overflow: hidden; resize: both; min-width: 300px; min-height: 200px; }
         
-        /* Title Bar */
         .title-bar { padding: 10px 15px; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: space-between; align-items: center; cursor: grab; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .title-bar:active { cursor: grabbing; }
         .title-text { font-size: 14px; font-weight: 600; }
@@ -25,16 +22,14 @@
         .ctrl-btn { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; }
         .close { background: #e74c3c; }
 
-        /* Taskbar */
         #taskbar { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); height: 50px; width: 650px; background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; overflow-x: auto; padding: 0 10px; }
         .taskbar-icon { min-width: 35px; height: 35px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .taskbar-icon:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
         .taskbar-icon img { width: 24px; height: 24px; }
 
-        .content { flex: 1; overflow: auto; background: #1e1e1e; display: flex; flex-direction: column; }
+        .content { flex: 1; overflow: auto; background: #1e1e1e; display: flex; flex-direction: column; position: relative; }
         .iframe-full { width: 100%; height: 100%; border: none; }
 
-        /* Browser UI */
         #browserToolbar { padding: 8px 15px; background: #202124; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #333; }
         .nav-btn { background: none; border: none; color: #ccc; font-size: 18px; cursor: pointer; padding: 5px; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;}
         .nav-btn:hover { background: #333; color: white; }
@@ -62,24 +57,29 @@
         .chat-join { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 15px; }
         .chat-join input { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #444; background: #222; color: white; text-align: center; letter-spacing: 2px; }
 
-        /* Code Viewer & Games */
-        .code-viewer { padding: 20px; color: #d4d4d4; font-family: 'Consolas', monospace; font-size: 14px; white-space: pre-wrap; background: #1e1e1e; margin: 0; }
-        .game-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 15px; }
+        /* Camera / Call */
+        .video-container { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; background: #000; justify-content: center; }
+        .video-wrapper { width: 45%; aspect-ratio: 4/3; background: #222; border-radius: 8px; overflow: hidden; position: relative;}
+        .video-wrapper video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .video-wrapper .label { position: absolute; bottom: 5px; left: 10px; font-size: 12px; background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 4px; }
         .btn { padding: 10px 20px; background: #0078d4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
         .btn:hover { background: #106ebe; }
+        .btn-danger { background: #e74c3c; }
+        .game-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 15px; }
     </style>
 </head>
 <body>
 
     <div id="desktop">
         <div class="icon" onclick="openApp('proxyApp')"><img src="https://img.icons8.com/color/48/000000/internet-explorer.png"><span>Browser</span></div>
+        <div class="icon" onclick="openApp('chatApp')"><img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"><span>Chat</span></div>
         <div class="icon" onclick="openApp('ytApp')"><img src="https://img.icons8.com/color/48/000000/youtube-play.png"><span>YouTube</span></div>
         <div class="icon" onclick="openApp('ttApp')"><img src="https://img.icons8.com/color/48/000000/tiktok.png"><span>TikTok</span></div>
-        <div class="icon" onclick="openApp('chatApp')"><img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"><span>Chat</span></div>
+        <div class="icon" onclick="openApp('camApp')"><img src="https://img.icons8.com/color/48/000000/camera.png"><span>Camera</span></div>
         <div class="icon" onclick="openApp('game2048')"><img src="https://img.icons8.com/color/48/000000/2048.png"><span>2048</span></div>
         <div class="icon" onclick="openApp('gameSnake')"><img src="https://img.icons8.com/color/48/000000/snake.png"><span>Snake</span></div>
-        <div class="icon" onclick="openApp('gameTTT')"><img src="https://img.icons8.com/color/48/000000/tic-tac-toe.png"><span>TicTacToe</span></div>
-        <div class="icon" onclick="openApp('codeApp')"><img src="https://img.icons8.com/color/48/000000/source-code.png"><span>Source</span></div>
+        <div class="icon" onclick="openApp('gameFlappy')"><img src="https://img.icons8.com/color/48/000000/bird.png"><span>Flappy</span></div>
+        <div class="icon" onclick="openApp('gameMemory')"><img src="https://img.icons8.com/color/48/000000/memory.png"><span>Memory</span></div>
     </div>
 
     <!-- Browser -->
@@ -97,22 +97,38 @@
     </div>
 
     <!-- YouTube -->
-    <div id="ytApp" class="window">
-        <div class="title-bar" onmousedown="startDrag(event, 'ytApp')"><span class="title-text">YouTube</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ytApp')"></div></div></div>
-        <div class="content"><iframe src="https://yewtu.be" class="iframe-full"></iframe></div>
+    <div id="ytApp" class="window" style="width: 1000px; height: 650px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'ytApp')"><span class="title-text">YouTube (Invidious)</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ytApp')"></div></div></div>
+        <div class="content"><iframe src="https://invidious.nerdvpn.de" class="iframe-full"></iframe></div>
     </div>
 
     <!-- TikTok -->
-    <div id="ttApp" class="window">
-        <div class="title-bar" onmousedown="startDrag(event, 'ttApp')"><span class="title-text">TikTok</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ttApp')"></div></div></div>
-        <div class="content"><iframe src="https://proxitok.privacydev.net" class="iframe-full"></iframe></div>
+    <div id="ttApp" class="window" style="width: 500px; height: 800px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'ttApp')"><span class="title-text">TikTok (ProxiTok)</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ttApp')"></div></div></div>
+        <div class="content"><iframe src="https://proxitok.pussthecat.org" class="iframe-full"></iframe></div>
     </div>
 
-    <!-- Chat -->
-    <div id="chatApp" class="window" style="width: 800px; height: 550px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'chatApp')"><span class="title-text">WhatsApp</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('chatApp')"></div></div></div>
+    <!-- Camera App -->
+    <div id="camApp" class="window" style="width: 700px; height: 550px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'camApp')"><span class="title-text">Camera & Microphone</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('camApp'); stopCam()"></div></div></div>
+        <div class="content" style="align-items: center; justify-content: center; background: #000;">
+            <div id="camPermission" style="text-align: center;">
+                <h2>Camera & Mic App</h2>
+                <p style="color: #aaa;">Click below to grant permission.</p>
+                <button class="btn" onclick="startCam()">Start Camera</button>
+            </div>
+            <div id="camView" class="video-wrapper" style="display: none; width: 90%;">
+                <video id="localVideo" autoplay playsinline muted></video>
+                <div class="label">You</div>
+                <button class="btn btn-danger" style="position: absolute; bottom: 10px; right: 10px;" onclick="stopCam()">Stop</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat (WhatsApp Clone with WebRTC) -->
+    <div id="chatApp" class="window" style="width: 850px; height: 600px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'chatApp')"><span class="title-text">WhatsApp</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('chatApp'); endCall()"></div></div></div>
         <div class="content">
-            <!-- Join Screen -->
             <div id="chatJoinScreen" class="chat-join">
                 <h2 style="margin:0;">Connect with a Friend</h2>
                 <p style="color: #888; font-size: 14px; margin: 0;">Enter a code to open or create a room.</p>
@@ -120,40 +136,40 @@
                 <button class="btn" onclick="joinChat()">Connect</button>
             </div>
             
-            <!-- WhatsApp Interface -->
             <div id="chatActiveScreen" class="chat-container" style="display: none;">
                 <div class="chat-sidebar">
                     <div class="chat-sidebar-header">Chats</div>
-                    <div class="chat-list" id="chatList">
-                        <!-- Rooms will be injected here -->
-                    </div>
+                    <div class="chat-list" id="chatList"></div>
                     <div style="padding: 10px;">
                         <button class="btn" style="width:100%; font-size:12px; padding:8px;" onclick="showJoinScreen()">+ New Chat</button>
                     </div>
                 </div>
                 <div class="chat-main">
-                    <div class="chat-header" id="activeRoomHeader">Select a chat</div>
+                    <div class="chat-header">
+                        <span id="activeRoomHeader">Select a chat</span>
+                        <button class="btn" style="padding: 5px 10px; font-size: 14px;" onclick="startCall()">📞 Call</button>
+                    </div>
+                    
+                    <!-- Call UI -->
+                    <div id="callUI" class="video-container" style="display: none;">
+                        <div class="video-wrapper">
+                            <video id="callLocalVideo" autoplay playsinline muted></video>
+                            <div class="label">You</div>
+                        </div>
+                        <div class="video-wrapper">
+                            <video id="callRemoteVideo" autoplay playsinline></video>
+                            <div class="label">Friend</div>
+                        </div>
+                        <button class="btn btn-danger" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);" onclick="endCall()">End Call</button>
+                    </div>
+
                     <div class="chat-messages" id="chatMessages"></div>
-                    <div class="chat-input-area" id="chatInputArea" style="display:none;">
+                    <div class="chat-input-area" id="chatInputArea">
                         <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
                         <button onclick="sendMessage()">Send</button>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Code Viewer -->
-    <div id="codeApp" class="window" style="width: 700px; height: 500px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'codeApp')"><span class="title-text">Source Code</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('codeApp')"></div></div></div>
-        <div class="content" style="background: #1e1e1e; color: #d4d4d4; font-family: monospace; padding: 20px; white-space: pre-wrap;">
-&lt;!-- This is the HTML for the OS you are using right now --&gt;
-&lt;html&gt;
-  &lt;body&gt;
-    &lt;h1&gt;Hello from the Code Viewer!&lt;/h1&gt;
-    &lt;p&gt;You can read text here.&lt;/p&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
         </div>
     </div>
 
@@ -163,7 +179,6 @@
         <div class="content">
             <div class="game-container">
                 <h2>2048</h2>
-                <p style="color:#aaa; font-size:14px; margin:0;">Use arrow keys to merge tiles.</p>
                 <canvas id="canvas2048" width="320" height="320" style="background:#bbada0; border-radius:8px;"></canvas>
                 <button class="btn" onclick="init2048()">Restart</button>
             </div>
@@ -176,22 +191,33 @@
         <div class="content">
             <div class="game-container">
                 <h2>Snake</h2>
-                <p style="color:#aaa; font-size:14px; margin:0;">Use arrow keys to move.</p>
                 <canvas id="canvasSnake" width="300" height="300" style="background:#111; border:2px solid #333;"></canvas>
                 <button class="btn" onclick="initSnake()">Restart</button>
             </div>
         </div>
     </div>
 
-    <!-- Tic Tac Toe -->
-    <div id="gameTTT" class="window" style="width: 350px; height: 450px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'gameTTT')"><span class="title-text">Tic-Tac-Toe</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('gameTTT')"></div></div></div>
+    <!-- Flappy Bird -->
+    <div id="gameFlappy" class="window" style="width: 400px; height: 500px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'gameFlappy')"><span class="title-text">Flappy Bird</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('gameFlappy')"></div></div></div>
         <div class="content">
             <div class="game-container">
-                <h2>Tic-Tac-Toe</h2>
-                <div id="tttBoard" style="display:grid; grid-template-columns: repeat(3, 80px); gap: 10px; margin: 20px 0;"></div>
-                <h3 id="tttStatus" style="margin:0;">Player X's turn</h3>
-                <button class="btn" onclick="initTTT()">Restart</button>
+                <h2>Flappy</h2>
+                <p style="color:#aaa; font-size:12px; margin:0;">Click canvas or Space to flap.</p>
+                <canvas id="canvasFlappy" width="300" height="400" style="background:#70c5ce; border:2px solid #333;"></canvas>
+                <button class="btn" onclick="initFlappy()">Restart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Memory Match -->
+    <div id="gameMemory" class="window" style="width: 400px; height: 500px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'gameMemory')"><span class="title-text">Memory Match</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('gameMemory')"></div></div></div>
+        <div class="content">
+            <div class="game-container">
+                <h2>Memory</h2>
+                <div id="memoryBoard" style="display:grid; grid-template-columns: repeat(4, 70px); gap: 10px;"></div>
+                <button class="btn" onclick="initMemory()">Restart</button>
             </div>
         </div>
     </div>
@@ -199,8 +225,9 @@
     <div id="taskbar">
         <div class="taskbar-icon" onclick="openApp('proxyApp')"><img src="https://img.icons8.com/color/48/000000/internet-explorer.png"></div>
         <div class="taskbar-icon" onclick="openApp('chatApp')"><img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"></div>
+        <div class="taskbar-icon" onclick="openApp('camApp')"><img src="https://img.icons8.com/color/48/000000/camera.png"></div>
         <div class="taskbar-icon" onclick="openApp('ytApp')"><img src="https://img.icons8.com/color/48/000000/youtube-play.png"></div>
-        <div class="taskbar-icon" onclick="openApp('game2048')"><img src="https://img.icons8.com/color/48/000000/2048.png"></div>
+        <div class="taskbar-icon" onclick="openApp('gameFlappy')"><img src="https://img.icons8.com/color/48/000000/bird.png"></div>
     </div>
 
     <script>
@@ -219,33 +246,89 @@
         }
 
         // --- Browser Logic ---
-        let historyStack = [];
-        let historyIndex = -1;
-        
+        let historyStack = [], historyIndex = -1;
         function browserGo() {
             const url = document.getElementById('browserUrl').value;
             if(!url) return;
             loadUrl(url);
             historyStack = historyStack.slice(0, historyIndex + 1);
-            historyStack.push(url);
-            historyIndex++;
+            historyStack.push(url); historyIndex++;
         }
-
         function loadUrl(url) {
             document.getElementById('browserUrl').value = url;
             document.getElementById('browserFrame').src = '/p/' + encodeURIComponent(url);
         }
+        function browserBack() { if(historyIndex > 0) { historyIndex--; loadUrl(historyStack[historyIndex]); } }
+        function browserForward() { if(historyIndex < historyStack.length - 1) { historyIndex++; loadUrl(historyStack[historyIndex]); } }
+        function browserReload() { if(historyIndex >= 0) { loadUrl(historyStack[historyIndex]); } }
 
-        function browserBack() {
-            if(historyIndex > 0) { historyIndex--; loadUrl(historyStack[historyIndex]); }
+        // --- Camera & WebRTC Logic ---
+        let localStream = null;
+        let peerConnection = null;
+
+        async function startCam() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('localVideo').srcObject = localStream;
+                document.getElementById('camPermission').style.display = 'none';
+                document.getElementById('camView').style.display = 'block';
+            } catch (err) {
+                alert("Camera access denied or unavailable: " + err.message);
+            }
+        }
+        function stopCam() {
+            if(localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+            document.getElementById('camPermission').style.display = 'block';
+            document.getElementById('camView').style.display = 'none';
         }
 
-        function browserForward() {
-            if(historyIndex < historyStack.length - 1) { historyIndex++; loadUrl(historyStack[historyIndex]); }
-        }
+        async function startCall() {
+            if(!currentRoom) return alert("Join a chat room first!");
+            document.getElementById('callUI').style.display = 'flex';
+            document.getElementById('chatMessages').style.display = 'none';
+            
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('callLocalVideo').srcObject = localStream;
+                
+                // Simple WebRTC setup using Google STUN
+                peerConnection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+                
+                peerConnection.ontrack = (event) => {
+                    document.getElementById('callRemoteVideo').srcObject = event.streams[0];
+                };
 
-        function browserReload() {
-            if(historyIndex >= 0) { loadUrl(historyStack[historyIndex]); }
+                // Signaling via Chat API
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                
+                // Send offer to room
+                await fetch('/api/chat/' + currentRoom, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({user: currentUser, text: 'CALL_OFFER:' + JSON.stringify(offer)})
+                });
+
+                // Listen for answers
+                setInterval(async () => {
+                    const res = await fetch('/api/chat/' + currentRoom);
+                    const data = await res.json();
+                    data.messages.forEach(async msg => {
+                        if(msg.text.startsWith('CALL_ANSWER:') && peerConnection.signalingState !== 'stable') {
+                            const answer = JSON.parse(msg.text.replace('CALL_ANSWER:', ''));
+                            await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+                        }
+                    });
+                }, 3000);
+
+            } catch(err) { alert("Call failed: " + err.message); endCall(); }
+        }
+        
+        function endCall() {
+            if(peerConnection) { peerConnection.close(); peerConnection = null; }
+            if(localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+            document.getElementById('callUI').style.display = 'none';
+            document.getElementById('chatMessages').style.display = 'flex';
         }
 
         // --- Chat Logic ---
@@ -255,23 +338,20 @@
         let activeRooms = JSON.parse(localStorage.getItem('chatRooms') || '[]');
 
         function renderChatList() {
-            const list = document.getElementById('chatList');
-            list.innerHTML = '';
+            const list = document.getElementById('chatList'); list.innerHTML = '';
             activeRooms.forEach(room => {
                 const div = document.createElement('div');
                 div.className = 'chat-list-item ' + (currentRoom === room ? 'active' : '');
-                div.innerHTML = `<span class="code">${room}</span><span style="font-size:12px;color:#888;">Tap to open</span>`;
+                div.innerHTML = `<span class="code">${room}</span>`;
                 div.onclick = () => switchRoom(room);
                 list.appendChild(div);
             });
         }
-
         function showJoinScreen() {
             document.getElementById('chatJoinScreen').style.display = 'flex';
             document.getElementById('chatActiveScreen').style.display = 'none';
             currentRoom = "";
         }
-
         function joinChat() {
             const code = document.getElementById('roomCodeInput').value.trim();
             if(code.length < 3) return alert("Code must be at least 3 chars");
@@ -281,30 +361,23 @@
             }
             switchRoom(code);
         }
-
         function switchRoom(code) {
             currentRoom = code;
             document.getElementById('chatJoinScreen').style.display = 'none';
             document.getElementById('chatActiveScreen').style.display = 'flex';
-            document.getElementById('chatInputArea').style.display = 'flex';
             document.getElementById('activeRoomHeader').innerText = "Room: " + code;
             renderChatList();
-            
-            document.getElementById('chatMessages').innerHTML = '<div style="text-align:center;color:#888;font-size:12px;margin-top:20px;">Connecting...</div>';
-            
             if(chatPollInterval) clearInterval(chatPollInterval);
             fetchMessages(); 
             chatPollInterval = setInterval(fetchMessages, 2000);
         }
-
         async function fetchMessages() {
             if(!currentRoom) return;
             try {
                 const res = await fetch('/api/chat/' + currentRoom); const data = await res.json();
-                const container = document.getElementById('chatMessages'); 
-                container.innerHTML = "";
-                if(data.messages.length === 0) container.innerHTML = '<div style="text-align:center;color:#888;font-size:12px;margin-top:20px;">No messages yet.</div>';
+                const container = document.getElementById('chatMessages'); container.innerHTML = "";
                 data.messages.forEach(msg => {
+                    if(msg.text.includes('CALL_')) return; // hide signaling from UI
                     const div = document.createElement('div');
                     div.className = 'msg ' + (msg.user === currentUser ? '' : 'other');
                     div.innerHTML = `<div style="font-size:10px;color:#aaa;margin-bottom:2px;">${msg.user}</div>${msg.text}<span class="time">${msg.time}</span>`;
@@ -313,7 +386,6 @@
                 container.scrollTop = container.scrollHeight;
             } catch(e) {}
         }
-
         async function sendMessage() {
             if(!currentRoom) return;
             const input = document.getElementById('chatInput'); const text = input.value.trim(); if(!text) return;
@@ -322,14 +394,9 @@
             fetchMessages();
         }
 
-        // --- 2048 Logic ---
+        // --- 2048 ---
         let grid2048 = [], score2048 = 0;
-        function init2048() {
-            grid2048 = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
-            score2048 = 0;
-            addTile2048(); addTile2048();
-            draw2048();
-        }
+        function init2048() { grid2048 = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]; score2048 = 0; addTile2048(); addTile2048(); draw2048(); }
         function addTile2048() {
             let empty = [];
             for(let r=0; r<4; r++) for(let c=0; c<4; c++) if(grid2048[r][c] === 0) empty.push({r,c});
@@ -355,7 +422,6 @@
         }
         window.addEventListener('keydown', e => {
             if(document.getElementById('game2048').style.display === 'none') return;
-            let moved = false;
             let oldGrid = JSON.stringify(grid2048);
             let key = e.key;
             if(key === 'ArrowUp') grid2048 = rotate2048(grid2048, 3);
@@ -363,12 +429,9 @@
             else if(key === 'ArrowLeft') grid2048 = rotate2048(grid2048, 2);
             else if(key === 'ArrowRight') grid2048 = rotate2048(grid2048, 0);
             else return;
-            
             for(let r=0; r<4; r++) {
                 let row = grid2048[r].filter(v => v);
-                for(let i=0; i<row.length-1; i++) {
-                    if(row[i] === row[i+1]) { row[i]*=2; row.splice(i+1,1); }
-                }
+                for(let i=0; i<row.length-1; i++) if(row[i] === row[i+1]) { row[i]*=2; row.splice(i+1,1); }
                 while(row.length < 4) row.push(0);
                 grid2048[r] = row;
             }
@@ -376,7 +439,6 @@
             else if(key === 'ArrowDown') grid2048 = rotate2048(grid2048, 3);
             else if(key === 'ArrowLeft') grid2048 = rotate2048(grid2048, 0);
             else if(key === 'ArrowRight') grid2048 = rotate2048(grid2048, 2);
-            
             if(JSON.stringify(grid2048) !== oldGrid) { addTile2048(); draw2048(); }
         });
         function rotate2048(g, times) {
@@ -389,7 +451,7 @@
             return res;
         }
 
-        // --- Snake Logic ---
+        // --- Snake ---
         let snake, dir, food, snakeInterval;
         function initSnake() {
             snake = [{x:10, y:10}]; dir = {x:0, y:0}; food = {x:15, y:15};
@@ -402,9 +464,8 @@
             if(head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) return initSnake();
             for(let i=0; i<snake.length; i++) if(snake[i].x === head.x && snake[i].y === head.y) return initSnake();
             snake.unshift(head);
-            if(head.x === food.x && head.y === food.y) {
-                food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
-            } else { snake.pop(); }
+            if(head.x === food.x && head.y === food.y) food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
+            else snake.pop();
             drawSnake();
         }
         function drawSnake() {
@@ -422,36 +483,77 @@
             if(e.key === 'ArrowRight' && dir.x === 0) dir = {x:1, y:0};
         });
 
-        // --- TicTacToe Logic ---
-        let tttBoard = [], tttPlayer = "X", tttActive = true;
-        function initTTT() {
-            tttBoard = ["","","","","","","","",""]; tttPlayer = "X"; tttActive = true;
-            document.getElementById('tttStatus').innerText = "Player X's turn";
-            const boardDiv = document.getElementById('tttBoard');
-            boardDiv.innerHTML = "";
-            for(let i=0; i<9; i++) {
-                let cell = document.createElement('div');
-                cell.style.cssText = "width:80px;height:80px;background:#333;display:flex;align-items:center;justify-content:center;font-size:40px;cursor:pointer;border-radius:8px;";
-                cell.onclick = () => playTTT(i, cell);
-                boardDiv.appendChild(cell);
+        // --- Flappy Bird ---
+        let flappyCanvas, flappyCtx, bird, pipes, flappyScore, flappyLoop, flappyGravity;
+        function initFlappy() {
+            flappyCanvas = document.getElementById('canvasFlappy'); flappyCtx = flappyCanvas.getContext('2d');
+            bird = {x: 50, y: 200, vy: 0, size: 15};
+            pipes = []; flappyScore = 0; flappyGravity = 0.25;
+            if(flappyLoop) clearInterval(flappyLoop);
+            flappyLoop = setInterval(drawFlappy, 1000/60);
+        }
+        function drawFlappy() {
+            flappyCtx.fillStyle = "#70c5ce"; flappyCtx.fillRect(0,0,300,400);
+            bird.vy += flappyGravity; bird.y += bird.vy;
+            flappyCtx.fillStyle = "#f1c40f"; flappyCtx.fillRect(bird.x, bird.y, bird.size, bird.size);
+            
+            if(pipes.length === 0 || pipes[pipes.length-1].x < 150) {
+                pipes.push({x: 300, top: Math.random()*200 + 50, bottom: Math.random()*100 + 100});
             }
+            
+            for(let i=pipes.length-1; i>=0; i--) {
+                let p = pipes[i]; p.x -= 2;
+                flappyCtx.fillStyle = "#2ecc71";
+                flappyCtx.fillRect(p.x, 0, 50, p.top);
+                flappyCtx.fillRect(p.x, 400 - p.bottom, 50, p.bottom);
+                
+                if(bird.x + bird.size > p.x && bird.x < p.x + 50 && (bird.y < p.top || bird.y + bird.size > 400 - p.bottom)) {
+                    clearInterval(flappyLoop); alert("Game Over! Score: " + flappyScore);
+                }
+                if(p.x === 48) flappyScore++;
+                if(p.x < -50) pipes.splice(i, 1);
+            }
+            flappyCtx.fillStyle = "#fff"; flappyCtx.font = "20px sans-serif"; flappyCtx.fillText(flappyScore, 10, 30);
+            if(bird.y > 400 || bird.y < 0) { clearInterval(flappyLoop); alert("Game Over! Score: " + flappyScore); }
         }
-        function playTTT(i, cell) {
-            if(!tttActive || tttBoard[i] !== "") return;
-            tttBoard[i] = tttPlayer; cell.innerText = tttPlayer;
-            cell.style.color = tttPlayer === "X" ? "#3498db" : "#e74c3c";
-            if(checkTTT()) { document.getElementById('tttStatus').innerText = tttPlayer + " Wins!"; tttActive = false; return; }
-            if(!tttBoard.includes("")) { document.getElementById('tttStatus').innerText = "Tie!"; tttActive = false; return; }
-            tttPlayer = tttPlayer === "X" ? "O" : "X";
-            document.getElementById('tttStatus').innerText = "Player " + tttPlayer + "'s turn";
+        document.getElementById('canvasFlappy').addEventListener('click', () => { if(flappyLoop) bird.vy = -5; });
+        window.addEventListener('keydown', e => { if(e.key === ' ' && document.getElementById('gameFlappy').style.display !== 'none') bird.vy = -5; });
+
+        // --- Memory Match ---
+        let memoryCards = [], memoryFlipped = [], memoryMatched = 0;
+        function initMemory() {
+            const emojis = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼'];
+            memoryCards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+            memoryFlipped = []; memoryMatched = 0;
+            const board = document.getElementById('memoryBoard'); board.innerHTML = '';
+            memoryCards.forEach((emoji, i) => {
+                let card = document.createElement('div');
+                card.style.cssText = "width:70px;height:70px;background:#333;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;color:transparent;";
+                card.innerText = emoji;
+                card.onclick = () => flipMemory(i, card);
+                board.appendChild(card);
+            });
         }
-        function checkTTT() {
-            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            return wins.some(w => tttBoard[w[0]] && tttBoard[w[0]] === tttBoard[w[1]] && tttBoard[w[0]] === tttBoard[w[2]]);
+        function flipMemory(i, card) {
+            if(memoryFlipped.length >= 2 || card.style.color === 'white') return;
+            card.style.background = '#555'; card.style.color = 'white';
+            memoryFlipped.push({i, card, emoji: memoryCards[i]});
+            if(memoryFlipped.length === 2) {
+                if(memoryFlipped[0].emoji === memoryFlipped[1].emoji) {
+                    memoryMatched++;
+                    memoryFlipped = [];
+                    if(memoryMatched === 8) setTimeout(() => alert("You won!"), 500);
+                } else {
+                    setTimeout(() => {
+                        memoryFlipped.forEach(f => { f.card.style.background = '#333'; f.card.style.color = 'transparent'; });
+                        memoryFlipped = [];
+                    }, 1000);
+                }
+            }
         }
 
         // Init
-        window.onload = () => { openApp('proxyApp'); init2048(); initSnake(); initTTT(); renderChatList(); };
+        window.onload = () => { openApp('proxyApp'); init2048(); initSnake(); initTTT(); initFlappy(); initMemory(); renderChatList(); };
     </script>
 </body>
 </html>

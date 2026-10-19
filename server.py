@@ -9,7 +9,6 @@ from flask import Flask, request, Response
 
 app = Flask(__name__)
 
-# --- REAL CHAT DATABASE (In-Memory) ---
 CHAT_DB = {} 
 
 UPSTREAM_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
@@ -66,7 +65,6 @@ def rewrite_css(css: str, base: str) -> str:
 def rewrite_html(body: str, base: str) -> str:
     soup = BeautifulSoup(body, "html.parser")
     
-    # Base tag for relative links
     if soup.head:
         base_tag = soup.new_tag("base", href=f"{PROXY_PREFIX}{enc(base)}")
         soup.head.insert(0, base_tag)
