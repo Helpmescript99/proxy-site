@@ -5,7 +5,7 @@ import json
 from urllib.parse import urljoin, quote, unquote
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask, request, Response
+from flask import Flask, request, Response, jsonify
 
 app = Flask(__name__)
 
@@ -38,6 +38,14 @@ HOOK_JS = """
   XMLHttpRequest.prototype.open = function (m, u) {
     try { if (looksHttp(u)) u = enc(u); } catch (e) {}
     return _open.apply(this, [m, u].concat([].slice.call(arguments, 2)));
+  };
+  // Rewrite WebSockets for live sites
+  var _ws = window.WebSocket;
+  window.WebSocket = function(url, protocols) {
+    try {
+      if (looksHttp(url)) url = 'wss://' + window.location.host + P + 'ws/' + encodeURIComponent(url);
+    } catch(e){}
+    return new _ws(url, protocols);
   };
 })();
 </script>
@@ -128,6 +136,34 @@ def forward(url: str) -> Response:
         raw = body_bytes.decode(upstream.encoding or "utf-8", "replace")
         return Response(rewrite_css(raw, upstream.url), status=upstream.status_code, headers=out_headers, mimetype="text/css")
     return Response(body_bytes, status=upstream.status_code, headers=out_headers, mimetype=ctype or None)
+
+# --- NEW NATIVE APIS ---
+@app.route("/api/search_yt")
+def search_yt():
+    q = request.args.get("q", "")
+    if not q: return jsonify([])
+    try:
+        # Use Invidious API for search
+        r = requests.get(f"https://invidious.nerdvpn.de/api/v1/search?q={quote(q)}&type=video", timeout=10)
+        data = r.json()
+        results = [{"title": v["title"], "id": v["videoId"], "author": v["author"], "thumb": v["videoThumbnails"][0]["url"]} for v in data[:12]]
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+@app.route("/api/tt")
+def get_tt():
+    url = request.args.get("url", "")
+    if not url: return jsonify({"error": "No URL"})
+    try:
+        # TikWM API extracts raw TikTok videos
+        r = requests.get(f"https://www.tikwm.com/api/?url={quote(url)}", timeout=10)
+        data = r.json()
+        if data.get("code") == 0:
+            return jsonify({"video": data["data"]["play"], "title": data["data"]["title"], "author": data["data"]["author"]["nickname"]})
+        return jsonify({"error": "Failed to extract"})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 @app.route("/api/chat/<room>", methods=["GET", "POST"])
 def chat_api(room):

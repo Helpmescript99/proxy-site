@@ -65,6 +65,20 @@
         .btn { padding: 10px 20px; background: #0078d4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
         .btn:hover { background: #106ebe; }
         .btn-danger { background: #e74c3c; }
+
+        /* Native YouTube & TikTok */
+        .app-header { padding: 15px; background: #202124; display: flex; gap: 10px; }
+        .app-search { flex: 1; padding: 10px; border-radius: 20px; border: none; background: #111; color: white; outline: none; }
+        .yt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; padding: 15px; }
+        .yt-card { background: #202124; border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.2s; }
+        .yt-card:hover { background: #333; transform: scale(1.02); }
+        .yt-card img { width: 100%; height: 120px; object-fit: cover; }
+        .yt-card .info { padding: 10px; }
+        .yt-card .title { font-size: 14px; font-weight: bold; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .yt-card .author { font-size: 12px; color: #aaa; }
+        .tt-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; }
+        .tt-video { max-height: 400px; border-radius: 12px; border: 2px solid #333; }
+        
         .game-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 15px; }
     </style>
 </head>
@@ -79,7 +93,6 @@
         <div class="icon" onclick="openApp('game2048')"><img src="https://img.icons8.com/color/48/000000/2048.png"><span>2048</span></div>
         <div class="icon" onclick="openApp('gameSnake')"><img src="https://img.icons8.com/color/48/000000/snake.png"><span>Snake</span></div>
         <div class="icon" onclick="openApp('gameFlappy')"><img src="https://img.icons8.com/color/48/000000/bird.png"><span>Flappy</span></div>
-        <div class="icon" onclick="openApp('gameMemory')"><img src="https://img.icons8.com/color/48/000000/memory.png"><span>Memory</span></div>
     </div>
 
     <!-- Browser -->
@@ -96,16 +109,44 @@
         </div>
     </div>
 
-    <!-- YouTube -->
-    <div id="ytApp" class="window" style="width: 1000px; height: 650px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'ytApp')"><span class="title-text">YouTube (Invidious)</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ytApp')"></div></div></div>
-        <div class="content"><iframe src="https://invidious.nerdvpn.de" class="iframe-full"></iframe></div>
+    <!-- Native YouTube -->
+    <div id="ytApp" class="window" style="width: 900px; height: 650px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'ytApp')"><span class="title-text">YouTube</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ytApp')"></div></div></div>
+        <div class="content">
+            <!-- Search View -->
+            <div id="ytSearchView" style="display: flex; flex-direction: column; height: 100%;">
+                <div class="app-header">
+                    <input type="text" id="ytSearchInput" class="app-search" placeholder="Search YouTube..." onkeypress="if(event.key==='Enter') searchYT()">
+                    <button class="btn" onclick="searchYT()">Search</button>
+                </div>
+                <div id="ytResults" class="yt-grid"></div>
+            </div>
+            <!-- Player View -->
+            <div id="ytPlayerView" style="display: none; flex-direction: column; height: 100%; background: #000;">
+                <div style="padding: 10px; background: #202124; display: flex; gap: 10px; align-items: center;">
+                    <button class="btn" onclick="backToYT()">← Back</button>
+                    <span id="ytPlayerTitle" style="font-size: 14px; font-weight: bold;"></span>
+                </div>
+                <iframe id="ytPlayerIframe" style="flex: 1; border: none; width: 100%;" allowfullscreen></iframe>
+            </div>
+        </div>
     </div>
 
-    <!-- TikTok -->
-    <div id="ttApp" class="window" style="width: 500px; height: 800px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'ttApp')"><span class="title-text">TikTok (ProxiTok)</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ttApp')"></div></div></div>
-        <div class="content"><iframe src="https://proxitok.pussthecat.org" class="iframe-full"></iframe></div>
+    <!-- Native TikTok -->
+    <div id="ttApp" class="window" style="width: 500px; height: 700px;">
+        <div class="title-bar" onmousedown="startDrag(event, 'ttApp')"><span class="title-text">TikTok Downloader</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ttApp')"></div></div></div>
+        <div class="content">
+            <div style="padding: 20px; display: flex; gap: 10px;">
+                <input type="text" id="ttUrlInput" class="app-search" placeholder="Paste TikTok Link..." style="border-radius: 6px;">
+                <button class="btn" onclick="loadTT()">Load</button>
+            </div>
+            <div id="ttResult" class="tt-container" style="display: none; flex-direction: column; gap: 15px;">
+                <h3 id="ttTitle" style="margin: 0; font-size: 16px;"></h3>
+                <p id="ttAuthor" style="margin: 0; color: #aaa; font-size: 14px;"></p>
+                <video id="ttVideo" class="tt-video" controls autoplay loop></video>
+            </div>
+            <div id="ttLoading" style="display: none; text-align: center; margin-top: 50px; color: #aaa;">Extracting video...</div>
+        </div>
     </div>
 
     <!-- Camera App -->
@@ -125,7 +166,7 @@
         </div>
     </div>
 
-    <!-- Chat (WhatsApp Clone with WebRTC) -->
+    <!-- Chat -->
     <div id="chatApp" class="window" style="width: 850px; height: 600px;">
         <div class="title-bar" onmousedown="startDrag(event, 'chatApp')"><span class="title-text">WhatsApp</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('chatApp'); endCall()"></div></div></div>
         <div class="content">
@@ -135,34 +176,22 @@
                 <input type="text" id="roomCodeInput" placeholder="ABC123" maxlength="10" oninput="this.value = this.value.toUpperCase()">
                 <button class="btn" onclick="joinChat()">Connect</button>
             </div>
-            
             <div id="chatActiveScreen" class="chat-container" style="display: none;">
                 <div class="chat-sidebar">
                     <div class="chat-sidebar-header">Chats</div>
                     <div class="chat-list" id="chatList"></div>
-                    <div style="padding: 10px;">
-                        <button class="btn" style="width:100%; font-size:12px; padding:8px;" onclick="showJoinScreen()">+ New Chat</button>
-                    </div>
+                    <div style="padding: 10px;"><button class="btn" style="width:100%; font-size:12px; padding:8px;" onclick="showJoinScreen()">+ New Chat</button></div>
                 </div>
                 <div class="chat-main">
                     <div class="chat-header">
                         <span id="activeRoomHeader">Select a chat</span>
                         <button class="btn" style="padding: 5px 10px; font-size: 14px;" onclick="startCall()">📞 Call</button>
                     </div>
-                    
-                    <!-- Call UI -->
                     <div id="callUI" class="video-container" style="display: none;">
-                        <div class="video-wrapper">
-                            <video id="callLocalVideo" autoplay playsinline muted></video>
-                            <div class="label">You</div>
-                        </div>
-                        <div class="video-wrapper">
-                            <video id="callRemoteVideo" autoplay playsinline></video>
-                            <div class="label">Friend</div>
-                        </div>
+                        <div class="video-wrapper"><video id="callLocalVideo" autoplay playsinline muted></video><div class="label">You</div></div>
+                        <div class="video-wrapper"><video id="callRemoteVideo" autoplay playsinline></video><div class="label">Friend</div></div>
                         <button class="btn btn-danger" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);" onclick="endCall()">End Call</button>
                     </div>
-
                     <div class="chat-messages" id="chatMessages"></div>
                     <div class="chat-input-area" id="chatInputArea">
                         <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
@@ -173,61 +202,25 @@
         </div>
     </div>
 
-    <!-- 2048 Game -->
+    <!-- Games -->
     <div id="game2048" class="window" style="width: 400px; height: 500px;">
         <div class="title-bar" onmousedown="startDrag(event, 'game2048')"><span class="title-text">2048</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('game2048')"></div></div></div>
-        <div class="content">
-            <div class="game-container">
-                <h2>2048</h2>
-                <canvas id="canvas2048" width="320" height="320" style="background:#bbada0; border-radius:8px;"></canvas>
-                <button class="btn" onclick="init2048()">Restart</button>
-            </div>
-        </div>
+        <div class="content"><div class="game-container"><h2>2048</h2><canvas id="canvas2048" width="320" height="320" style="background:#bbada0; border-radius:8px;"></canvas><button class="btn" onclick="init2048()">Restart</button></div></div>
     </div>
-
-    <!-- Snake Game -->
     <div id="gameSnake" class="window" style="width: 400px; height: 500px;">
         <div class="title-bar" onmousedown="startDrag(event, 'gameSnake')"><span class="title-text">Snake</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('gameSnake')"></div></div></div>
-        <div class="content">
-            <div class="game-container">
-                <h2>Snake</h2>
-                <canvas id="canvasSnake" width="300" height="300" style="background:#111; border:2px solid #333;"></canvas>
-                <button class="btn" onclick="initSnake()">Restart</button>
-            </div>
-        </div>
+        <div class="content"><div class="game-container"><h2>Snake</h2><canvas id="canvasSnake" width="300" height="300" style="background:#111; border:2px solid #333;"></canvas><button class="btn" onclick="initSnake()">Restart</button></div></div>
     </div>
-
-    <!-- Flappy Bird -->
     <div id="gameFlappy" class="window" style="width: 400px; height: 500px;">
         <div class="title-bar" onmousedown="startDrag(event, 'gameFlappy')"><span class="title-text">Flappy Bird</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('gameFlappy')"></div></div></div>
-        <div class="content">
-            <div class="game-container">
-                <h2>Flappy</h2>
-                <p style="color:#aaa; font-size:12px; margin:0;">Click canvas or Space to flap.</p>
-                <canvas id="canvasFlappy" width="300" height="400" style="background:#70c5ce; border:2px solid #333;"></canvas>
-                <button class="btn" onclick="initFlappy()">Restart</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Memory Match -->
-    <div id="gameMemory" class="window" style="width: 400px; height: 500px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'gameMemory')"><span class="title-text">Memory Match</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('gameMemory')"></div></div></div>
-        <div class="content">
-            <div class="game-container">
-                <h2>Memory</h2>
-                <div id="memoryBoard" style="display:grid; grid-template-columns: repeat(4, 70px); gap: 10px;"></div>
-                <button class="btn" onclick="initMemory()">Restart</button>
-            </div>
-        </div>
+        <div class="content"><div class="game-container"><h2>Flappy</h2><p style="color:#aaa; font-size:12px; margin:0;">Click canvas to flap.</p><canvas id="canvasFlappy" width="300" height="400" style="background:#70c5ce; border:2px solid #333;"></canvas><button class="btn" onclick="initFlappy()">Restart</button></div></div>
     </div>
 
     <div id="taskbar">
         <div class="taskbar-icon" onclick="openApp('proxyApp')"><img src="https://img.icons8.com/color/48/000000/internet-explorer.png"></div>
         <div class="taskbar-icon" onclick="openApp('chatApp')"><img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"></div>
-        <div class="taskbar-icon" onclick="openApp('camApp')"><img src="https://img.icons8.com/color/48/000000/camera.png"></div>
         <div class="taskbar-icon" onclick="openApp('ytApp')"><img src="https://img.icons8.com/color/48/000000/youtube-play.png"></div>
-        <div class="taskbar-icon" onclick="openApp('gameFlappy')"><img src="https://img.icons8.com/color/48/000000/bird.png"></div>
+        <div class="taskbar-icon" onclick="openApp('ttApp')"><img src="https://img.icons8.com/color/48/000000/tiktok.png"></div>
     </div>
 
     <script>
@@ -237,8 +230,7 @@
         function closeApp(id) { document.getElementById(id).style.display = 'none'; }
         function startDrag(e, id) {
             const el = document.getElementById(id); const rect = el.getBoundingClientRect();
-            const shiftX = e.clientX - rect.left; const shiftY = e.clientY - rect.top;
-            el.style.zIndex = ++zIndex;
+            const shiftX = e.clientX - rect.left; const shiftY = e.clientY - rect.top; el.style.zIndex = ++zIndex;
             function moveAt(pageX, pageY) { el.style.left = pageX - shiftX + 'px'; el.style.top = pageY - shiftY + 'px'; }
             function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
             document.addEventListener('mousemove', onMouseMove);
@@ -248,71 +240,95 @@
         // --- Browser Logic ---
         let historyStack = [], historyIndex = -1;
         function browserGo() {
-            const url = document.getElementById('browserUrl').value;
-            if(!url) return;
-            loadUrl(url);
-            historyStack = historyStack.slice(0, historyIndex + 1);
-            historyStack.push(url); historyIndex++;
+            const url = document.getElementById('browserUrl').value; if(!url) return;
+            loadUrl(url); historyStack = historyStack.slice(0, historyIndex + 1); historyStack.push(url); historyIndex++;
         }
-        function loadUrl(url) {
-            document.getElementById('browserUrl').value = url;
-            document.getElementById('browserFrame').src = '/p/' + encodeURIComponent(url);
-        }
+        function loadUrl(url) { document.getElementById('browserUrl').value = url; document.getElementById('browserFrame').src = '/p/' + encodeURIComponent(url); }
         function browserBack() { if(historyIndex > 0) { historyIndex--; loadUrl(historyStack[historyIndex]); } }
         function browserForward() { if(historyIndex < historyStack.length - 1) { historyIndex++; loadUrl(historyStack[historyIndex]); } }
         function browserReload() { if(historyIndex >= 0) { loadUrl(historyStack[historyIndex]); } }
 
-        // --- Camera & WebRTC Logic ---
-        let localStream = null;
-        let peerConnection = null;
+        // --- YouTube Native Logic ---
+        async function searchYT() {
+            const q = document.getElementById('ytSearchInput').value.trim();
+            if(!q) return;
+            const grid = document.getElementById('ytResults');
+            grid.innerHTML = '<div style="text-align:center; width:100%; margin-top:20px; color:#aaa;">Searching...</div>';
+            try {
+                const res = await fetch('/api/search_yt?q=' + encodeURIComponent(q));
+                const data = await res.json();
+                grid.innerHTML = '';
+                if(data.error) return grid.innerHTML = '<div style="color:red; text-align:center; width:100%;">Error: ' + data.error + '</div>';
+                data.forEach(v => {
+                    const card = document.createElement('div'); card.className = 'yt-card';
+                    card.onclick = () => playYT(v.id, v.title);
+                    card.innerHTML = `<img src="${v.thumb}"><div class="info"><div class="title">${v.title}</div><div class="author">${v.author}</div></div>`;
+                    grid.appendChild(card);
+                });
+            } catch(e) { grid.innerHTML = 'Search failed.'; }
+        }
+        function playYT(id, title) {
+            document.getElementById('ytSearchView').style.display = 'none';
+            const player = document.getElementById('ytPlayerView');
+            player.style.display = 'flex';
+            document.getElementById('ytPlayerTitle').innerText = title;
+            document.getElementById('ytPlayerIframe').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+        }
+        function backToYT() {
+            document.getElementById('ytPlayerView').style.display = 'none';
+            document.getElementById('ytSearchView').style.display = 'flex';
+            document.getElementById('ytPlayerIframe').src = '';
+        }
 
+        // --- TikTok Native Logic ---
+        async function loadTT() {
+            const url = document.getElementById('ttUrlInput').value.trim();
+            if(!url) return;
+            document.getElementById('ttResult').style.display = 'none';
+            document.getElementById('ttLoading').style.display = 'block';
+            try {
+                const res = await fetch('/api/tt?url=' + encodeURIComponent(url));
+                const data = await res.json();
+                document.getElementById('ttLoading').style.display = 'none';
+                if(data.error) return alert("Error: " + data.error);
+                
+                document.getElementById('ttResult').style.display = 'flex';
+                document.getElementById('ttTitle').innerText = data.title || "TikTok Video";
+                document.getElementById('ttAuthor').innerText = "@" + (data.author || "unknown");
+                const vid = document.getElementById('ttVideo');
+                vid.src = data.video;
+                vid.play();
+            } catch(e) { document.getElementById('ttLoading').style.display = 'none'; alert("Failed to load"); }
+        }
+
+        // --- Camera & WebRTC Logic ---
+        let localStream = null; let peerConnection = null;
         async function startCam() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 document.getElementById('localVideo').srcObject = localStream;
                 document.getElementById('camPermission').style.display = 'none';
                 document.getElementById('camView').style.display = 'block';
-            } catch (err) {
-                alert("Camera access denied or unavailable: " + err.message);
-            }
+            } catch (err) { alert("Camera access denied: " + err.message); }
         }
         function stopCam() {
             if(localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-            document.getElementById('camPermission').style.display = 'block';
-            document.getElementById('camView').style.display = 'none';
+            document.getElementById('camPermission').style.display = 'block'; document.getElementById('camView').style.display = 'none';
         }
-
         async function startCall() {
             if(!currentRoom) return alert("Join a chat room first!");
-            document.getElementById('callUI').style.display = 'flex';
-            document.getElementById('chatMessages').style.display = 'none';
-            
+            document.getElementById('callUI').style.display = 'flex'; document.getElementById('chatMessages').style.display = 'none';
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 document.getElementById('callLocalVideo').srcObject = localStream;
-                
-                // Simple WebRTC setup using Google STUN
                 peerConnection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
                 localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-                
-                peerConnection.ontrack = (event) => {
-                    document.getElementById('callRemoteVideo').srcObject = event.streams[0];
-                };
-
-                // Signaling via Chat API
+                peerConnection.ontrack = (event) => { document.getElementById('callRemoteVideo').srcObject = event.streams[0]; };
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
-                
-                // Send offer to room
-                await fetch('/api/chat/' + currentRoom, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({user: currentUser, text: 'CALL_OFFER:' + JSON.stringify(offer)})
-                });
-
-                // Listen for answers
+                await fetch('/api/chat/' + currentRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: currentUser, text: 'CALL_OFFER:' + JSON.stringify(offer)}) });
                 setInterval(async () => {
-                    const res = await fetch('/api/chat/' + currentRoom);
-                    const data = await res.json();
+                    const res = await fetch('/api/chat/' + currentRoom); const data = await res.json();
                     data.messages.forEach(async msg => {
                         if(msg.text.startsWith('CALL_ANSWER:') && peerConnection.signalingState !== 'stable') {
                             const answer = JSON.parse(msg.text.replace('CALL_ANSWER:', ''));
@@ -320,56 +336,34 @@
                         }
                     });
                 }, 3000);
-
             } catch(err) { alert("Call failed: " + err.message); endCall(); }
         }
-        
         function endCall() {
             if(peerConnection) { peerConnection.close(); peerConnection = null; }
             if(localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-            document.getElementById('callUI').style.display = 'none';
-            document.getElementById('chatMessages').style.display = 'flex';
+            document.getElementById('callUI').style.display = 'none'; document.getElementById('chatMessages').style.display = 'flex';
         }
 
         // --- Chat Logic ---
-        let currentRoom = ""; 
-        let currentUser = "User-" + Math.floor(Math.random() * 999); 
-        let chatPollInterval = null;
+        let currentRoom = ""; let currentUser = "User-" + Math.floor(Math.random() * 999); let chatPollInterval = null;
         let activeRooms = JSON.parse(localStorage.getItem('chatRooms') || '[]');
-
         function renderChatList() {
             const list = document.getElementById('chatList'); list.innerHTML = '';
             activeRooms.forEach(room => {
-                const div = document.createElement('div');
-                div.className = 'chat-list-item ' + (currentRoom === room ? 'active' : '');
-                div.innerHTML = `<span class="code">${room}</span>`;
-                div.onclick = () => switchRoom(room);
-                list.appendChild(div);
+                const div = document.createElement('div'); div.className = 'chat-list-item ' + (currentRoom === room ? 'active' : '');
+                div.innerHTML = `<span class="code">${room}</span>`; div.onclick = () => switchRoom(room); list.appendChild(div);
             });
         }
-        function showJoinScreen() {
-            document.getElementById('chatJoinScreen').style.display = 'flex';
-            document.getElementById('chatActiveScreen').style.display = 'none';
-            currentRoom = "";
-        }
+        function showJoinScreen() { document.getElementById('chatJoinScreen').style.display = 'flex'; document.getElementById('chatActiveScreen').style.display = 'none'; currentRoom = ""; }
         function joinChat() {
-            const code = document.getElementById('roomCodeInput').value.trim();
-            if(code.length < 3) return alert("Code must be at least 3 chars");
-            if(!activeRooms.includes(code)) {
-                activeRooms.push(code);
-                localStorage.setItem('chatRooms', JSON.stringify(activeRooms));
-            }
+            const code = document.getElementById('roomCodeInput').value.trim(); if(code.length < 3) return alert("Code must be at least 3 chars");
+            if(!activeRooms.includes(code)) { activeRooms.push(code); localStorage.setItem('chatRooms', JSON.stringify(activeRooms)); }
             switchRoom(code);
         }
         function switchRoom(code) {
-            currentRoom = code;
-            document.getElementById('chatJoinScreen').style.display = 'none';
-            document.getElementById('chatActiveScreen').style.display = 'flex';
-            document.getElementById('activeRoomHeader').innerText = "Room: " + code;
-            renderChatList();
-            if(chatPollInterval) clearInterval(chatPollInterval);
-            fetchMessages(); 
-            chatPollInterval = setInterval(fetchMessages, 2000);
+            currentRoom = code; document.getElementById('chatJoinScreen').style.display = 'none'; document.getElementById('chatActiveScreen').style.display = 'flex';
+            document.getElementById('activeRoomHeader').innerText = "Room: " + code; renderChatList();
+            if(chatPollInterval) clearInterval(chatPollInterval); fetchMessages(); chatPollInterval = setInterval(fetchMessages, 2000);
         }
         async function fetchMessages() {
             if(!currentRoom) return;
@@ -377,9 +371,8 @@
                 const res = await fetch('/api/chat/' + currentRoom); const data = await res.json();
                 const container = document.getElementById('chatMessages'); container.innerHTML = "";
                 data.messages.forEach(msg => {
-                    if(msg.text.includes('CALL_')) return; // hide signaling from UI
-                    const div = document.createElement('div');
-                    div.className = 'msg ' + (msg.user === currentUser ? '' : 'other');
+                    if(msg.text.includes('CALL_')) return;
+                    const div = document.createElement('div'); div.className = 'msg ' + (msg.user === currentUser ? '' : 'other');
                     div.innerHTML = `<div style="font-size:10px;color:#aaa;margin-bottom:2px;">${msg.user}</div>${msg.text}<span class="time">${msg.time}</span>`;
                     container.appendChild(div);
                 });
@@ -389,129 +382,62 @@
         async function sendMessage() {
             if(!currentRoom) return;
             const input = document.getElementById('chatInput'); const text = input.value.trim(); if(!text) return;
-            input.value = "";
-            await fetch('/api/chat/' + currentRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: currentUser, text: text}) });
-            fetchMessages();
+            input.value = ""; await fetch('/api/chat/' + currentRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: currentUser, text: text}) }); fetchMessages();
         }
 
-        // --- 2048 ---
+        // --- Games Logic ---
         let grid2048 = [], score2048 = 0;
         function init2048() { grid2048 = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]; score2048 = 0; addTile2048(); addTile2048(); draw2048(); }
         function addTile2048() {
-            let empty = [];
-            for(let r=0; r<4; r++) for(let c=0; c<4; c++) if(grid2048[r][c] === 0) empty.push({r,c});
-            if(empty.length === 0) return;
-            let spot = empty[Math.floor(Math.random() * empty.length)];
-            grid2048[spot.r][spot.c] = Math.random() < 0.9 ? 2 : 4;
+            let empty = []; for(let r=0; r<4; r++) for(let c=0; c<4; c++) if(grid2048[r][c] === 0) empty.push({r,c});
+            if(empty.length === 0) return; let spot = empty[Math.floor(Math.random() * empty.length)]; grid2048[spot.r][spot.c] = Math.random() < 0.9 ? 2 : 4;
         }
         function draw2048() {
-            const ctx = document.getElementById('canvas2048').getContext('2d');
-            ctx.fillStyle = "#bbada0"; ctx.fillRect(0,0,320,320);
+            const ctx = document.getElementById('canvas2048').getContext('2d'); ctx.fillStyle = "#bbada0"; ctx.fillRect(0,0,320,320);
             const colors = {0:"#cdc1b4", 2:"#eee4da", 4:"#ede0c8", 8:"#f2b179", 16:"#f59563", 32:"#f67c5f", 64:"#f65e3b", 128:"#edcf72", 256:"#edcc61", 512:"#edc850", 1024:"#edc53f", 2048:"#edc22e"};
             for(let r=0; r<4; r++) for(let c=0; c<4; c++) {
-                let val = grid2048[r][c];
-                ctx.fillStyle = colors[val] || "#3c3a32";
-                ctx.fillRect(c*80+10, r*80+10, 60, 60);
-                if(val !== 0) {
-                    ctx.fillStyle = val <= 4 ? "#776e65" : "#f9f6f2";
-                    ctx.font = val > 100 ? "bold 24px sans-serif" : "bold 32px sans-serif";
-                    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                    ctx.fillText(val, c*80+40, r*80+40);
-                }
+                let val = grid2048[r][c]; ctx.fillStyle = colors[val] || "#3c3a32"; ctx.fillRect(c*80+10, r*80+10, 60, 60);
+                if(val !== 0) { ctx.fillStyle = val <= 4 ? "#776e65" : "#f9f6f2"; ctx.font = val > 100 ? "bold 24px sans-serif" : "bold 32px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(val, c*80+40, r*80+40); }
             }
         }
         window.addEventListener('keydown', e => {
             if(document.getElementById('game2048').style.display === 'none') return;
-            let oldGrid = JSON.stringify(grid2048);
-            let key = e.key;
-            if(key === 'ArrowUp') grid2048 = rotate2048(grid2048, 3);
-            else if(key === 'ArrowDown') grid2048 = rotate2048(grid2048, 1);
-            else if(key === 'ArrowLeft') grid2048 = rotate2048(grid2048, 2);
-            else if(key === 'ArrowRight') grid2048 = rotate2048(grid2048, 0);
-            else return;
-            for(let r=0; r<4; r++) {
-                let row = grid2048[r].filter(v => v);
-                for(let i=0; i<row.length-1; i++) if(row[i] === row[i+1]) { row[i]*=2; row.splice(i+1,1); }
-                while(row.length < 4) row.push(0);
-                grid2048[r] = row;
-            }
-            if(key === 'ArrowUp') grid2048 = rotate2048(grid2048, 1);
-            else if(key === 'ArrowDown') grid2048 = rotate2048(grid2048, 3);
-            else if(key === 'ArrowLeft') grid2048 = rotate2048(grid2048, 0);
-            else if(key === 'ArrowRight') grid2048 = rotate2048(grid2048, 2);
+            let oldGrid = JSON.stringify(grid2048); let key = e.key;
+            if(key === 'ArrowUp') grid2048 = rotate2048(grid2048, 3); else if(key === 'ArrowDown') grid2048 = rotate2048(grid2048, 1); else if(key === 'ArrowLeft') grid2048 = rotate2048(grid2048, 2); else if(key === 'ArrowRight') grid2048 = rotate2048(grid2048, 0); else return;
+            for(let r=0; r<4; r++) { let row = grid2048[r].filter(v => v); for(let i=0; i<row.length-1; i++) if(row[i] === row[i+1]) { row[i]*=2; row.splice(i+1,1); } while(row.length < 4) row.push(0); grid2048[r] = row; }
+            if(key === 'ArrowUp') grid2048 = rotate2048(grid2048, 1); else if(key === 'ArrowDown') grid2048 = rotate2048(grid2048, 3); else if(key === 'ArrowLeft') grid2048 = rotate2048(grid2048, 0); else if(key === 'ArrowRight') grid2048 = rotate2048(grid2048, 2);
             if(JSON.stringify(grid2048) !== oldGrid) { addTile2048(); draw2048(); }
         });
-        function rotate2048(g, times) {
-            let res = g;
-            for(let t=0; t<times; t++) {
-                let newG = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
-                for(let r=0; r<4; r++) for(let c=0; c<4; c++) newG[c][3-r] = res[r][c];
-                res = newG;
-            }
-            return res;
-        }
+        function rotate2048(g, times) { let res = g; for(let t=0; t<times; t++) { let newG = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]; for(let r=0; r<4; r++) for(let c=0; c<4; c++) newG[c][3-r] = res[r][c]; res = newG; } return res; }
 
-        // --- Snake ---
         let snake, dir, food, snakeInterval;
-        function initSnake() {
-            snake = [{x:10, y:10}]; dir = {x:0, y:0}; food = {x:15, y:15};
-            if(snakeInterval) clearInterval(snakeInterval);
-            snakeInterval = setInterval(moveSnake, 100);
-        }
+        function initSnake() { snake = [{x:10, y:10}]; dir = {x:0, y:0}; food = {x:15, y:15}; if(snakeInterval) clearInterval(snakeInterval); snakeInterval = setInterval(moveSnake, 100); }
         function moveSnake() {
-            if(dir.x === 0 && dir.y === 0) return;
-            let head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+            if(dir.x === 0 && dir.y === 0) return; let head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
             if(head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) return initSnake();
             for(let i=0; i<snake.length; i++) if(snake[i].x === head.x && snake[i].y === head.y) return initSnake();
-            snake.unshift(head);
-            if(head.x === food.x && head.y === food.y) food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
-            else snake.pop();
-            drawSnake();
+            snake.unshift(head); if(head.x === food.x && head.y === food.y) food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)}; else snake.pop(); drawSnake();
         }
         function drawSnake() {
-            const ctx = document.getElementById('canvasSnake').getContext('2d');
-            ctx.fillStyle = "#111"; ctx.fillRect(0,0,300,300);
-            ctx.fillStyle = "#e74c3c"; ctx.fillRect(food.x*15, food.y*15, 15, 15);
-            ctx.fillStyle = "#2ecc71";
-            snake.forEach(s => ctx.fillRect(s.x*15, s.y*15, 14, 14));
+            const ctx = document.getElementById('canvasSnake').getContext('2d'); ctx.fillStyle = "#111"; ctx.fillRect(0,0,300,300); ctx.fillStyle = "#e74c3c"; ctx.fillRect(food.x*15, food.y*15, 15, 15); ctx.fillStyle = "#2ecc71"; snake.forEach(s => ctx.fillRect(s.x*15, s.y*15, 14, 14));
         }
         window.addEventListener('keydown', e => {
             if(document.getElementById('gameSnake').style.display === 'none') return;
-            if(e.key === 'ArrowUp' && dir.y === 0) dir = {x:0, y:-1};
-            if(e.key === 'ArrowDown' && dir.y === 0) dir = {x:0, y:1};
-            if(e.key === 'ArrowLeft' && dir.x === 0) dir = {x:-1, y:0};
-            if(e.key === 'ArrowRight' && dir.x === 0) dir = {x:1, y:0};
+            if(e.key === 'ArrowUp' && dir.y === 0) dir = {x:0, y:-1}; if(e.key === 'ArrowDown' && dir.y === 0) dir = {x:0, y:1}; if(e.key === 'ArrowLeft' && dir.x === 0) dir = {x:-1, y:0}; if(e.key === 'ArrowRight' && dir.x === 0) dir = {x:1, y:0};
         });
 
-        // --- Flappy Bird ---
         let flappyCanvas, flappyCtx, bird, pipes, flappyScore, flappyLoop, flappyGravity;
         function initFlappy() {
-            flappyCanvas = document.getElementById('canvasFlappy'); flappyCtx = flappyCanvas.getContext('2d');
-            bird = {x: 50, y: 200, vy: 0, size: 15};
-            pipes = []; flappyScore = 0; flappyGravity = 0.25;
-            if(flappyLoop) clearInterval(flappyLoop);
-            flappyLoop = setInterval(drawFlappy, 1000/60);
+            flappyCanvas = document.getElementById('canvasFlappy'); flappyCtx = flappyCanvas.getContext('2d'); bird = {x: 50, y: 200, vy: 0, size: 15}; pipes = []; flappyScore = 0; flappyGravity = 0.25;
+            if(flappyLoop) clearInterval(flappyLoop); flappyLoop = setInterval(drawFlappy, 1000/60);
         }
         function drawFlappy() {
-            flappyCtx.fillStyle = "#70c5ce"; flappyCtx.fillRect(0,0,300,400);
-            bird.vy += flappyGravity; bird.y += bird.vy;
-            flappyCtx.fillStyle = "#f1c40f"; flappyCtx.fillRect(bird.x, bird.y, bird.size, bird.size);
-            
-            if(pipes.length === 0 || pipes[pipes.length-1].x < 150) {
-                pipes.push({x: 300, top: Math.random()*200 + 50, bottom: Math.random()*100 + 100});
-            }
-            
+            flappyCtx.fillStyle = "#70c5ce"; flappyCtx.fillRect(0,0,300,400); bird.vy += flappyGravity; bird.y += bird.vy; flappyCtx.fillStyle = "#f1c40f"; flappyCtx.fillRect(bird.x, bird.y, bird.size, bird.size);
+            if(pipes.length === 0 || pipes[pipes.length-1].x < 150) pipes.push({x: 300, top: Math.random()*200 + 50, bottom: Math.random()*100 + 100});
             for(let i=pipes.length-1; i>=0; i--) {
-                let p = pipes[i]; p.x -= 2;
-                flappyCtx.fillStyle = "#2ecc71";
-                flappyCtx.fillRect(p.x, 0, 50, p.top);
-                flappyCtx.fillRect(p.x, 400 - p.bottom, 50, p.bottom);
-                
-                if(bird.x + bird.size > p.x && bird.x < p.x + 50 && (bird.y < p.top || bird.y + bird.size > 400 - p.bottom)) {
-                    clearInterval(flappyLoop); alert("Game Over! Score: " + flappyScore);
-                }
-                if(p.x === 48) flappyScore++;
-                if(p.x < -50) pipes.splice(i, 1);
+                let p = pipes[i]; p.x -= 2; flappyCtx.fillStyle = "#2ecc71"; flappyCtx.fillRect(p.x, 0, 50, p.top); flappyCtx.fillRect(p.x, 400 - p.bottom, 50, p.bottom);
+                if(bird.x + bird.size > p.x && bird.x < p.x + 50 && (bird.y < p.top || bird.y + bird.size > 400 - p.bottom)) { clearInterval(flappyLoop); alert("Game Over! Score: " + flappyScore); }
+                if(p.x === 48) flappyScore++; if(p.x < -50) pipes.splice(i, 1);
             }
             flappyCtx.fillStyle = "#fff"; flappyCtx.font = "20px sans-serif"; flappyCtx.fillText(flappyScore, 10, 30);
             if(bird.y > 400 || bird.y < 0) { clearInterval(flappyLoop); alert("Game Over! Score: " + flappyScore); }
@@ -519,41 +445,7 @@
         document.getElementById('canvasFlappy').addEventListener('click', () => { if(flappyLoop) bird.vy = -5; });
         window.addEventListener('keydown', e => { if(e.key === ' ' && document.getElementById('gameFlappy').style.display !== 'none') bird.vy = -5; });
 
-        // --- Memory Match ---
-        let memoryCards = [], memoryFlipped = [], memoryMatched = 0;
-        function initMemory() {
-            const emojis = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼'];
-            memoryCards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
-            memoryFlipped = []; memoryMatched = 0;
-            const board = document.getElementById('memoryBoard'); board.innerHTML = '';
-            memoryCards.forEach((emoji, i) => {
-                let card = document.createElement('div');
-                card.style.cssText = "width:70px;height:70px;background:#333;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;color:transparent;";
-                card.innerText = emoji;
-                card.onclick = () => flipMemory(i, card);
-                board.appendChild(card);
-            });
-        }
-        function flipMemory(i, card) {
-            if(memoryFlipped.length >= 2 || card.style.color === 'white') return;
-            card.style.background = '#555'; card.style.color = 'white';
-            memoryFlipped.push({i, card, emoji: memoryCards[i]});
-            if(memoryFlipped.length === 2) {
-                if(memoryFlipped[0].emoji === memoryFlipped[1].emoji) {
-                    memoryMatched++;
-                    memoryFlipped = [];
-                    if(memoryMatched === 8) setTimeout(() => alert("You won!"), 500);
-                } else {
-                    setTimeout(() => {
-                        memoryFlipped.forEach(f => { f.card.style.background = '#333'; f.card.style.color = 'transparent'; });
-                        memoryFlipped = [];
-                    }, 1000);
-                }
-            }
-        }
-
-        // Init
-        window.onload = () => { openApp('proxyApp'); init2048(); initSnake(); initTTT(); initFlappy(); initMemory(); renderChatList(); };
+        window.onload = () => { openApp('proxyApp'); init2048(); initSnake(); initFlappy(); renderChatList(); };
     </script>
 </body>
 </html>
