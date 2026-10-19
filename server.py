@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import re
 import time
+import json
 from urllib.parse import urljoin, quote, unquote
 import requests
 from flask import Flask, request, Response, jsonify
@@ -9,7 +10,7 @@ app = Flask(__name__)
 
 CHAT_DB = {}
 CACHE = {}
-CACHE_TTL = 900 # 15 minutes
+CACHE_TTL = 900 
 
 UPSTREAM_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 PROXY_PREFIX = "/p/"
@@ -69,11 +70,34 @@ def rewrite_css_fast(css, base):
 def search_yt():
     q = request.args.get("q", "")
     if not q: return jsonify([])
-    try:
-        r = requests.get(f"https://invidious.nerdvpn.de/api/v1/search?q={quote(q)}&type=video", timeout=10)
-        data = r.json()
-        return jsonify([{"title": v["title"], "id": v["videoId"], "author": v["author"], "thumb": v["videoThumbnails"][0]["url"]} for v in data[:12]])
-    except Exception: return jsonify([])
+    
+    # Try multiple instances in case one is down
+    apis = [
+        f"https://pipedapi.kavin.rocks/search?q={quote(q)}&filter=videos",
+        f"https://pipedapi.adminforge.de/search?q={quote(q)}&filter=videos",
+        f"https://invidious.privacyredirect.com/api/v1/search?q={quote(q)}&type=video"
+    ]
+    
+    for api in apis:
+        try:
+            r = requests.get(api, timeout=5)
+            data = r.json()
+            results = []
+            # Piped API format
+            if "items" in data:
+                for v in data["items"][:12]:
+                    if v.get("type") == "stream":
+                        results.append({"title": v["title"], "id": v["url"].split("?v=")[1], "author": v["uploaderName"], "thumb": v["thumbnail"]})
+                if results: return jsonify(results)
+            # Invidious API format
+            elif isinstance(data, list):
+                for v in data[:12]:
+                    results.append({"title": v["title"], "id": v["videoId"], "author": v["author"], "thumb": v["videoThumbnails"][0]["url"]})
+                if results: return jsonify(results)
+        except Exception:
+            continue
+            
+    return jsonify({"error": "All search APIs are currently down. Please try again later."})
 
 @app.route("/api/tt")
 def get_tt():
@@ -108,8 +132,7 @@ def proxy(encoded):
 
     if request.method == "GET" and target in CACHE:
         ts, body, ctype = CACHE[target]
-        if time.time() - ts < CACHE_TTL:
-            return Response(body, mimetype=ctype)
+        if time.time() - ts < CACHE_TTL: return Response(body, mimetype=ctype)
 
     fwd_headers = {k: v for k, v in request.headers.items() if k.lower() not in ("host", "referer", "origin", "cookie", "accept-encoding", "content-length", "connection")}
     ref = request.headers.get("Referer", "")

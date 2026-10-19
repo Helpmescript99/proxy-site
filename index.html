@@ -243,7 +243,6 @@
         }
         function loadUrl(url) { 
             document.getElementById('browserUrl').value = url; 
-            // HARDCODED CLOUDFLARE WORKER
             document.getElementById('browserFrame').src = 'https://my-proxy-worker.sherhadsulaiman772.workers.dev/p/' + encodeURIComponent(url); 
         }
         function browserBack() { if(historyIndex > 0) { historyIndex--; loadUrl(historyStack[historyIndex]); } }
@@ -260,14 +259,26 @@
                 const res = await fetch('/api/search_yt?q=' + encodeURIComponent(q));
                 const data = await res.json();
                 grid.innerHTML = '';
-                if(data.error) return grid.innerHTML = '<div style="color:red; text-align:center; width:100%;">Error: ' + data.error + '</div>';
+                
+                if(data.error || data.length === 0) {
+                    grid.innerHTML = `
+                        <div style="text-align:center; width:100%; padding: 20px;">
+                            <p style="color:#e74c3c; margin-bottom: 15px;">API failed to load results.</p>
+                            <button class="btn" onclick="playYTUrl('https://yewtu.be/search?q=${encodeURIComponent(q)}')">Search on Yewtu.be instead</button>
+                        </div>
+                    `;
+                    return;
+                }
+
                 data.forEach(v => {
                     const card = document.createElement('div'); card.className = 'yt-card';
                     card.onclick = () => playYT(v.id, v.title);
                     card.innerHTML = `<img src="${v.thumb}"><div class="info"><div class="title">${v.title}</div><div class="author">${v.author}</div></div>`;
                     grid.appendChild(card);
                 });
-            } catch(e) { grid.innerHTML = 'Search failed.'; }
+            } catch(e) { 
+                grid.innerHTML = '<div style="text-align:center; width:100%; color:red;">Failed to connect to search API.</div>'; 
+            }
         }
         function playYT(id, title) {
             document.getElementById('ytSearchView').style.display = 'none';
@@ -275,6 +286,13 @@
             player.style.display = 'flex';
             document.getElementById('ytPlayerTitle').innerText = title;
             document.getElementById('ytPlayerIframe').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+        }
+        function playYTUrl(url) {
+            document.getElementById('ytSearchView').style.display = 'none';
+            const player = document.getElementById('ytPlayerView');
+            player.style.display = 'flex';
+            document.getElementById('ytPlayerTitle').innerText = "Search Results";
+            document.getElementById('ytPlayerIframe').src = url;
         }
         function backToYT() {
             document.getElementById('ytPlayerView').style.display = 'none';
