@@ -113,7 +113,6 @@
     <div id="ytApp" class="window" style="width: 900px; height: 650px;">
         <div class="title-bar" onmousedown="startDrag(event, 'ytApp')"><span class="title-text">YouTube</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ytApp')"></div></div></div>
         <div class="content">
-            <!-- Search View -->
             <div id="ytSearchView" style="display: flex; flex-direction: column; height: 100%;">
                 <div class="app-header">
                     <input type="text" id="ytSearchInput" class="app-search" placeholder="Search YouTube..." onkeypress="if(event.key==='Enter') searchYT()">
@@ -121,7 +120,6 @@
                 </div>
                 <div id="ytResults" class="yt-grid"></div>
             </div>
-            <!-- Player View -->
             <div id="ytPlayerView" style="display: none; flex-direction: column; height: 100%; background: #000;">
                 <div style="padding: 10px; background: #202124; display: flex; gap: 10px; align-items: center;">
                     <button class="btn" onclick="backToYT()">← Back</button>
@@ -243,7 +241,11 @@
             const url = document.getElementById('browserUrl').value; if(!url) return;
             loadUrl(url); historyStack = historyStack.slice(0, historyIndex + 1); historyStack.push(url); historyIndex++;
         }
-        function loadUrl(url) { document.getElementById('browserUrl').value = url; document.getElementById('browserFrame').src = '/p/' + encodeURIComponent(url); }
+        function loadUrl(url) { 
+            document.getElementById('browserUrl').value = url; 
+            // HARDCODED CLOUDFLARE WORKER
+            document.getElementById('browserFrame').src = 'https://my-proxy-worker.sherhadsulaiman772.workers.dev/p/' + encodeURIComponent(url); 
+        }
         function browserBack() { if(historyIndex > 0) { historyIndex--; loadUrl(historyStack[historyIndex]); } }
         function browserForward() { if(historyIndex < historyStack.length - 1) { historyIndex++; loadUrl(historyStack[historyIndex]); } }
         function browserReload() { if(historyIndex >= 0) { loadUrl(historyStack[historyIndex]); } }

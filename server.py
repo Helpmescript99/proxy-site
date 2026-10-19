@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 import re
 import time
-import json
 from urllib.parse import urljoin, quote, unquote
 import requests
-from bs4 import BeautifulSoup
 from flask import Flask, request, Response, jsonify
 
 app = Flask(__name__)
 
-CHAT_DB = {} 
+CHAT_DB = {}
+CACHE = {}
+CACHE_TTL = 900 # 15 minutes
 
 UPSTREAM_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 PROXY_PREFIX = "/p/"
@@ -23,7 +23,7 @@ session.headers.update({"User-Agent": UPSTREAM_UA, "Accept-Language": "en-US,en;
 HOOK_JS = """
 <script>
 (function () {
-  var P = %r;
+  var P = '/p/';
   function enc(u) { return P + encodeURIComponent(u); }
   function looksHttp(u) { return /^https?:\\/\\//i.test(u); }
   var _fetch = window.fetch;
@@ -39,131 +39,53 @@ HOOK_JS = """
     try { if (looksHttp(u)) u = enc(u); } catch (e) {}
     return _open.apply(this, [m, u].concat([].slice.call(arguments, 2)));
   };
-  // Rewrite WebSockets for live sites
-  var _ws = window.WebSocket;
-  window.WebSocket = function(url, protocols) {
-    try {
-      if (looksHttp(url)) url = 'wss://' + window.location.host + P + 'ws/' + encodeURIComponent(url);
-    } catch(e){}
-    return new _ws(url, protocols);
-  };
 })();
 </script>
-""" % PROXY_PREFIX
+"""
 
-CSS_URL_RE = re.compile(r"""url\(\s*(['"]?)(.*?)\1\s*\)""", re.I)
-HOP_HEADERS = {
-    "connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
-    "te", "trailers", "transfer-encoding", "upgrade", "content-encoding", "content-length", "accept-encoding",
-}
+ATTR_REGEX = re.compile(r'(href|src|action)=["\'](?!(?:https?:|data:|javascript:|mailto:|#|/p/))(.*?)["\']', re.IGNORECASE)
+CSS_REGEX = re.compile(r'url\(\s*[\'"]?(?!(?:https?:|data:))(.*?)[\'"]?\s*\)', re.IGNORECASE)
 
-def enc(url: str) -> str: return quote(url, safe="")
+def rewrite_fast(body, base):
+    def repl_attr(m):
+        absolute = urljoin(base, m.group(2))
+        return f'{m.group(1)}="{PROXY_PREFIX}{quote(absolute, safe="")}"'
+    body = ATTR_REGEX.sub(repl_attr, body)
+    base_tag = f'<base href="{PROXY_PREFIX}{quote(base, safe="")}">'
+    injection = base_tag + HOOK_JS
+    if '<head>' in body.lower():
+        body = re.sub(r'<head>', f'<head>{injection}', body, count=1, flags=re.IGNORECASE)
+    else:
+        body = injection + body
+    return body
 
-def rewrite_attr(base: str, value: str) -> str:
-    if not value: return value
-    v = value.strip()
-    if v.startswith(("data:", "javascript:", "mailto:", "tel:", "blob:", "#")): return value
-    absolute = urljoin(base, v)
-    if absolute.startswith(("http://", "https://")): return PROXY_PREFIX + enc(absolute)
-    return value
+def rewrite_css_fast(css, base):
+    def repl_css(m):
+        absolute = urljoin(base, m.group(1))
+        return f'url("{PROXY_PREFIX}{quote(absolute, safe="")}")'
+    return CSS_REGEX.sub(repl_css, css)
 
-def rewrite_css(css: str, base: str) -> str:
-    return CSS_URL_RE.sub(lambda m: "url(%s)" % rewrite_attr(base, m.group(2)), css)
-
-def rewrite_html(body: str, base: str) -> str:
-    soup = BeautifulSoup(body, "html.parser")
-    
-    if soup.head:
-        base_tag = soup.new_tag("base", href=f"{PROXY_PREFIX}{enc(base)}")
-        soup.head.insert(0, base_tag)
-    
-    for tag, attr in [("a", "href"), ("link", "href"), ("area", "href"), ("script", "src"), ("img", "src"), ("iframe", "src"), ("frame", "src"), ("video", "src"), ("audio", "src"), ("source", "src"), ("track", "src"), ("embed", "src"), ("input", "src"), ("form", "action")]:
-        for el in soup.find_all(tag):
-            if el.has_attr(attr): el[attr] = rewrite_attr(base, el[attr])
-            
-    for el in soup.find_all(attrs={"srcset": True}):
-        parts = []
-        for chunk in el["srcset"].split(","):
-            chunk = chunk.strip()
-            if not chunk: continue
-            bits = chunk.split()
-            bits[0] = rewrite_attr(base, bits[0])
-            parts.append(" ".join(bits))
-        el["srcset"] = ", ".join(parts)
-        
-    for el in soup.find_all(style=True): el["style"] = rewrite_css(el["style"], base)
-    for el in soup.find_all("style"):
-        if el.string: el.string = rewrite_css(el.string, base)
-        
-    for el in soup.find_all(attrs={"integrity": True}): del el["integrity"]
-    for el in soup.find_all(attrs={"crossorigin": True}): del el["crossorigin"]
-    
-    html = str(soup)
-    if "</head>" in html: html = html.replace("</head>", HOOK_JS + "</head>", 1)
-    elif "<body" in html: html = html.replace("<body", HOOK_JS + "<body", 1)
-    else: html = HOOK_JS + html
-    return html
-
-def forward(url: str) -> Response:
-    method = request.method
-    fwd_headers = {k: v for k, v in request.headers.items() if k.lower() not in HOP_HEADERS and k.lower() not in ("host", "referer", "origin", "cookie")}
-    ref = request.headers.get("Referer", "")
-    if ref.startswith(PROXY_PREFIX): fwd_headers["Referer"] = unquote(ref[len(PROXY_PREFIX):])
-    data = None
-    if method in ("POST", "PUT", "PATCH"):
-        data = request.get_data()
-        fwd_headers["Content-Type"] = request.headers.get("Content-Type", "application/x-www-form-urlencoded")
-    try:
-        upstream = session.request(method, url, headers=fwd_headers, data=data, timeout=TIMEOUT, allow_redirects=True, stream=True)
-    except requests.RequestException as e: return Response(f"Upstream error: {e}", status=502, mimetype="text/plain")
-
-    ctype = upstream.headers.get("Content-Type", "").lower()
-    out_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in HOP_HEADERS and k.lower() not in ("content-security-policy", "content-security-policy-report-only", "x-frame-options", "strict-transport-security")}
-    loc = upstream.headers.get("Location")
-    if loc: out_headers["Location"] = rewrite_attr(url, loc)
-
-    body_bytes = b""
-    try:
-        for chunk in upstream.iter_content(chunk_size=8192):
-            body_bytes += chunk
-            if len(body_bytes) > MAX_BYTES: break
-    except Exception: pass
-
-    if "text/html" in ctype:
-        raw = body_bytes.decode(upstream.encoding or "utf-8", "replace")
-        return Response(rewrite_html(raw, upstream.url), status=upstream.status_code, headers=out_headers, mimetype="text/html")
-    if "text/css" in ctype:
-        raw = body_bytes.decode(upstream.encoding or "utf-8", "replace")
-        return Response(rewrite_css(raw, upstream.url), status=upstream.status_code, headers=out_headers, mimetype="text/css")
-    return Response(body_bytes, status=upstream.status_code, headers=out_headers, mimetype=ctype or None)
-
-# --- NEW NATIVE APIS ---
 @app.route("/api/search_yt")
 def search_yt():
     q = request.args.get("q", "")
     if not q: return jsonify([])
     try:
-        # Use Invidious API for search
         r = requests.get(f"https://invidious.nerdvpn.de/api/v1/search?q={quote(q)}&type=video", timeout=10)
         data = r.json()
-        results = [{"title": v["title"], "id": v["videoId"], "author": v["author"], "thumb": v["videoThumbnails"][0]["url"]} for v in data[:12]]
-        return jsonify(results)
-    except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify([{"title": v["title"], "id": v["videoId"], "author": v["author"], "thumb": v["videoThumbnails"][0]["url"]} for v in data[:12]])
+    except Exception: return jsonify([])
 
 @app.route("/api/tt")
 def get_tt():
     url = request.args.get("url", "")
     if not url: return jsonify({"error": "No URL"})
     try:
-        # TikWM API extracts raw TikTok videos
         r = requests.get(f"https://www.tikwm.com/api/?url={quote(url)}", timeout=10)
         data = r.json()
         if data.get("code") == 0:
             return jsonify({"video": data["data"]["play"], "title": data["data"]["title"], "author": data["data"]["author"]["nickname"]})
         return jsonify({"error": "Failed to extract"})
-    except Exception as e:
-        return jsonify({"error": str(e)})
+    except Exception as e: return jsonify({"error": str(e)})
 
 @app.route("/api/chat/<room>", methods=["GET", "POST"])
 def chat_api(room):
@@ -177,14 +99,53 @@ def chat_api(room):
 
 @app.route("/")
 def index():
-    with open("index.html", "r", encoding="utf-8") as f:
-        return f.read()
+    with open("index.html", "r", encoding="utf-8") as f: return f.read()
 
 @app.route("/p/<path:encoded>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 def proxy(encoded):
     target = unquote(encoded)
     if not target.startswith(("http://", "https://")): return Response("bad url", status=400)
-    return forward(target)
+
+    if request.method == "GET" and target in CACHE:
+        ts, body, ctype = CACHE[target]
+        if time.time() - ts < CACHE_TTL:
+            return Response(body, mimetype=ctype)
+
+    fwd_headers = {k: v for k, v in request.headers.items() if k.lower() not in ("host", "referer", "origin", "cookie", "accept-encoding", "content-length", "connection")}
+    ref = request.headers.get("Referer", "")
+    if ref.startswith(PROXY_PREFIX): fwd_headers["Referer"] = unquote(ref[len(PROXY_PREFIX):])
+    
+    data = None
+    if request.method in ("POST", "PUT", "PATCH"):
+        data = request.get_data()
+        fwd_headers["Content-Type"] = request.headers.get("Content-Type", "application/x-www-form-urlencoded")
+
+    try:
+        upstream = session.request(request.method, target, headers=fwd_headers, data=data, timeout=TIMEOUT, allow_redirects=True, stream=True)
+    except requests.RequestException as e: return Response(f"Error: {e}", status=502)
+
+    ctype = upstream.headers.get("Content-Type", "").lower()
+    out_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in ("content-security-policy", "x-frame-options", "strict-transport-security", "content-encoding", "content-length")}
+    if "Location" in upstream.headers: out_headers["Location"] = PROXY_PREFIX + quote(urljoin(target, upstream.headers["Location"]), safe="")
+
+    body_bytes = b""
+    try:
+        for chunk in upstream.iter_content(chunk_size=8192):
+            body_bytes += chunk
+            if len(body_bytes) > MAX_BYTES: break
+    except Exception: pass
+
+    if "text/html" in ctype:
+        raw = rewrite_fast(body_bytes.decode(upstream.encoding or "utf-8", "replace"), upstream.url)
+        if request.method == "GET": CACHE[target] = (time.time(), raw, "text/html")
+        return Response(raw, status=upstream.status_code, headers=out_headers, mimetype="text/html")
+    if "text/css" in ctype:
+        raw = rewrite_css_fast(body_bytes.decode(upstream.encoding or "utf-8", "replace"), upstream.url)
+        if request.method == "GET": CACHE[target] = (time.time(), raw, "text/css")
+        return Response(raw, status=upstream.status_code, headers=out_headers, mimetype="text/css")
+        
+    if request.method == "GET": CACHE[target] = (time.time(), body_bytes, ctype)
+    return Response(body_bytes, status=upstream.status_code, headers=out_headers, mimetype=ctype or None)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
