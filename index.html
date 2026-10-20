@@ -75,9 +75,9 @@
             animation: fadeIn 0.3s ease-out;
         }
 
-        .top-header { text-align: center; margin-bottom: 10px; }
-        .top-header h1 { font-size: 32px; margin-bottom: 10px; }
-        .top-header p { color: var(--text-muted); }
+        .top-header { text-align: center; margin-bottom: 5px; }
+        .top-header h1 { font-size: 36px; margin-bottom: 10px; font-weight: 800; }
+        .top-header p { color: var(--text-muted); font-size: 16px; }
 
         .input-group { display: flex; gap: 10px; width: 100%; }
         .input-field { flex: 1; padding: 18px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; color: var(--text); font-size: 16px; outline: none; transition: 0.2s; }
@@ -92,13 +92,29 @@
         .btn-icon { padding: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; cursor: pointer; color: var(--text-muted); transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .btn-icon:hover { background: var(--surface-light); color: var(--text); }
 
-        .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: none; flex-direction: column; gap: 16px; }
+        /* --- Support Bar --- */
+        .support-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 5px 0;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            flex-wrap: wrap;
+        }
+        .support-bar:hover { opacity: 1; }
+        .support-label { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-right: 5px; }
+        .support-icon { width: 28px; height: 28px; border-radius: 6px; object-fit: contain; filter: grayscale(100%) brightness(1.5); transition: 0.2s; }
+        .support-icon:hover { filter: grayscale(0%) brightness(1); transform: translateY(-3px) scale(1.1); }
+
+        .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: none; flex-direction: column; gap: 16px; margin-top: 10px; }
         .result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
         .result-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
         .result-author { color: var(--text-muted); font-size: 14px; }
         .video-preview { width: 100%; max-height: 400px; border-radius: 12px; background: #000; object-fit: contain; }
 
-        .error-box { display: none; color: #ff6b6b; background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(231, 76, 60, 0.3); text-align: center; font-size: 14px; line-height: 1.5; }
+        .error-box { display: none; color: #ff6b6b; background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(231, 76, 60, 0.3); text-align: center; font-size: 14px; line-height: 1.5; margin-top: 10px; }
 
         /* --- Alt Sites Side Panel --- */
         .alt-sites-panel {
@@ -191,6 +207,19 @@
                                 <line x1="9" y1="3" x2="9" y2="21"></line>
                             </svg>
                         </button>
+                    </div>
+
+                    <!-- NEW: Supported Apps Bar -->
+                    <div class="support-bar">
+                        <span class="support-label">Supported:</span>
+                        <img class="support-icon" src="https://img.icons8.com/color/48/000000/youtube-play.png" title="YouTube">
+                        <img class="support-icon" src="https://img.icons8.com/color/48/000000/tiktok.png" title="TikTok">
+                        <img class="support-icon" src="https://img.icons8.com/color/48/000000/instagram-new.png" title="Instagram">
+                        <img class="support-icon" src="https://img.icons8.com/color/48/000000/twitterx--v1.png" title="Twitter / X">
+                        <img class="support-icon" src="https://img.icons8.com/color/48/000000/snapchat.png" title="Snapchat">
+                        <img class="support-icon" src="https://img.icons8.com/color/48/000000/facebook-new.png" title="Facebook">
+                        <img class="support-icon" src="https://img.icons8.com/color/48/000000/reddit.png" title="Reddit">
+                        <img class="support-icon" src="https://img.icons8.com/color/48/000000/pinterest--v1.png" title="Pinterest">
                     </div>
 
                     <div id="errorBox" class="error-box">
