@@ -111,6 +111,7 @@
     </header>
 
     <main>
+        <!-- Downloader -->
         <div id="section-downloader" class="app-section active">
             <div style="text-align: center; margin-bottom: 20px;">
                 <h1 style="font-size: 32px; margin-bottom: 10px;">Download Anything.</h1>
@@ -133,13 +134,13 @@
                         <div class="result-title" id="resTitle">Video Title</div>
                         <div class="result-author" id="resAuthor">@uploader</div>
                     </div>
-                    <!-- Added target and download attribute below -->
                     <a id="resDownloadBtn" class="btn btn-green" href="#" download="video.mp4">Save File</a>
                 </div>
                 <video id="resVideo" class="video-preview" controls style="display:none;"></video>
             </div>
         </div>
 
+        <!-- AirDrop -->
         <div id="section-airdrop" class="app-section">
             <div id="airdropJoin" class="airdrop-join">
                 <div style="background: var(--surface); padding: 20px; border-radius: 50%; border: 1px solid var(--border);">
@@ -189,7 +190,6 @@
         async function extractMedia() {
             const url = document.getElementById('mediaUrl').value.trim();
             if(!url) return;
-
             const btn = document.querySelector('#section-downloader .btn-blue');
             const spinner = document.getElementById('extractSpinner');
             const btnText = document.getElementById('extractBtnText');
@@ -218,7 +218,6 @@
                     
                     const dlBtn = document.getElementById('resDownloadBtn');
                     dlBtn.href = '/api/download?url=' + encodeURIComponent(data.url);
-                    // FORCE THE DOWNLOAD FILENAME HERE
                     dlBtn.setAttribute('download', safeTitle + '.' + fileExt);
                     
                     const video = document.getElementById('resVideo');
@@ -240,12 +239,16 @@
             }
         }
 
-        // --- AirDrop Logic ---
+        // --- Fixed AirDrop Logic ---
         let rtcPeer = null, rtcChannel = null, rtcRoom = "";
         let receivedBuffers = [];
         let receivedSize = 0;
         let incomingFile = null;
         let airdropPollInterval = null;
+        
+        // UNIQUE ID: Prevents the device from reading its own signaling messages
+        const rtcMyId = "RTC_" + Math.random().toString(36).substring(2, 9);
+        let sentOffer = false;
 
         async function joinAirdrop() {
             rtcRoom = document.getElementById('airdropRoomCode').value.trim().toUpperCase();
@@ -255,25 +258,66 @@
             document.getElementById('airdropActive').style.display = 'flex';
             document.getElementById('airdropRoomDisplay').innerText = rtcRoom;
 
-            setupRTC();
+            await setupRTC();
             
-            await fetch('/api/chat/' + rtcRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: "RTC_SYSTEM", text: 'RTC_JOIN'}) });
+            // Broadcast join
+            await sendSignal('RTC_JOIN');
             
             airdropPollInterval = setInterval(async () => {
                 const res = await fetch('/api/chat/' + rtcRoom);
                 const data = await res.json();
-                data.messages.forEach(async msg => {
-                    if(msg.text.startsWith('RTC_OFFER:') && !rtcPeer.currentRemoteDescription) {
-                        await rtcPeer.setRemoteDescription(new RTCSessionDescription(JSON.parse(msg.text.replace('RTC_OFFER:', ''))));
-                        const answer = await rtcPeer.createAnswer();
-                        await rtcPeer.setLocalDescription(answer);
-                        await fetch('/api/chat/' + rtcRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: "RTC_SYSTEM", text: 'RTC_ANSWER:' + JSON.stringify(answer)}) });
+                
+                for (const msg of data.messages) {
+                    // Ignore messages sent by ME
+                    if (msg.user === rtcMyId) continue;
+
+                    if (msg.text === 'RTC_JOIN' && !sentOffer) {
+                        // If someone else joins, and I haven't offered yet, offer now
+                        await createOffer();
                     }
-                    if(msg.text.startsWith('RTC_ANSWER:') && rtcPeer.signalingState !== 'stable') {
-                        await rtcPeer.setRemoteDescription(new RTCSessionDescription(JSON.parse(msg.text.replace('RTC_ANSWER:', ''))));
+                    
+                    if (msg.text.startsWith('RTC_OFFER:') && msg.user !== rtcMyId) {
+                        const offer = JSON.parse(msg.text.replace('RTC_OFFER:', ''));
+                        // Handle Glare (both sent offers at same time)
+                        const polite = rtcMyId > msg.user;
+                        const collision = rtcPeer.signalingState === 'have-local-offer';
+                        
+                        if (collision) {
+                            if (polite) {
+                                await rtcPeer.setLocalDescription({type: "rollback"});
+                                await rtcPeer.setRemoteDescription(offer);
+                                const answer = await rtcPeer.createAnswer();
+                                await rtcPeer.setLocalDescription(answer);
+                                await sendSignal('RTC_ANSWER:' + JSON.stringify(answer));
+                            }
+                        } else {
+                            await rtcPeer.setRemoteDescription(offer);
+                            const answer = await rtcPeer.createAnswer();
+                            await rtcPeer.setLocalDescription(answer);
+                            await sendSignal('RTC_ANSWER:' + JSON.stringify(answer));
+                        }
                     }
-                });
+                    
+                    if (msg.text.startsWith('RTC_ANSWER:') && rtcPeer.signalingState !== 'stable') {
+                        const answer = JSON.parse(msg.text.replace('RTC_ANSWER:', ''));
+                        await rtcPeer.setRemoteDescription(answer);
+                    }
+                    
+                    // PROCESS ICE CANDIDATES (The missing piece)
+                    if (msg.text.startsWith('RTC_ICE:')) {
+                        const cand = JSON.parse(msg.text.replace('RTC_ICE:', ''));
+                        await rtcPeer.addIceCandidate(new RTCIceCandidate(cand)).catch(e => console.log('ICE error', e));
+                    }
+                }
             }, 2000);
+        }
+
+        async function sendSignal(text) {
+            await fetch('/api/chat/' + rtcRoom, { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({user: rtcMyId, text: text}) 
+            });
         }
 
         async function setupRTC() {
@@ -281,7 +325,7 @@
             
             rtcPeer.onicecandidate = async (event) => {
                 if (event.candidate) {
-                    await fetch('/api/chat/' + rtcRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: "RTC_SYSTEM", text: 'RTC_ICE:' + JSON.stringify(event.candidate)}) });
+                    await sendSignal('RTC_ICE:' + JSON.stringify(event.candidate));
                 }
             };
 
@@ -290,18 +334,31 @@
                 setupChannel();
             };
 
+            rtcPeer.oniceconnectionstatechange = () => {
+                if (rtcPeer.iceConnectionState === "connected" || rtcPeer.iceConnectionState === "completed") {
+                    document.getElementById('airdropStatus').innerText = "Connected! Ready to send files.";
+                    document.getElementById('airdropStatus').style.color = "var(--primary)";
+                    document.getElementById('dropZone').style.borderColor = "var(--primary)";
+                }
+            };
+
             rtcChannel = rtcPeer.createDataChannel("fileTransfer");
             setupChannel();
+        }
 
+        async function createOffer() {
+            if(sentOffer) return;
+            sentOffer = true;
             const offer = await rtcPeer.createOffer();
             await rtcPeer.setLocalDescription(offer);
-            await fetch('/api/chat/' + rtcRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: "RTC_SYSTEM", text: 'RTC_OFFER:' + JSON.stringify(offer)}) });
+            await sendSignal('RTC_OFFER:' + JSON.stringify(offer));
         }
 
         function setupChannel() {
             rtcChannel.binaryType = 'arraybuffer';
             rtcChannel.onopen = () => {
                 document.getElementById('airdropStatus').innerText = "Connected! Ready to send files.";
+                document.getElementById('airdropStatus').style.color = "var(--primary)";
                 document.getElementById('dropZone').style.borderColor = "var(--primary)";
             };
             rtcChannel.onmessage = (event) => {
@@ -343,7 +400,7 @@
             rtcChannel.send(JSON.stringify({ type: 'start', name: file.name, size: file.size, mime: file.type }));
             
             let offset = 0;
-            const chunkSize = 16384;
+            const chunkSize = 16384; // 16KB chunks
             const reader = new FileReader();
 
             reader.onload = (e) => {
@@ -374,11 +431,14 @@
         function leaveAirdrop() {
             if(rtcPeer) { rtcPeer.close(); rtcPeer = null; }
             if(airdropPollInterval) { clearInterval(airdropPollInterval); airdropPollInterval = null; }
+            sentOffer = false;
             document.getElementById('airdropJoin').style.display = 'flex';
             document.getElementById('airdropActive').style.display = 'none';
             document.getElementById('airdropRoomCode').value = '';
             document.getElementById('airdropProgress').style.display = 'none';
             document.getElementById('airdropStatus').innerText = "Waiting for peer to connect...";
+            document.getElementById('airdropStatus').style.color = "var(--text-muted)";
+            document.getElementById('dropZone').style.borderColor = "var(--border)";
         }
     </script>
 </body>
