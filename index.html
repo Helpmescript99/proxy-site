@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minxy Utility</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap');
         
@@ -35,39 +36,24 @@
 
         /* Mobile Header */
         .mobile-header {
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 20px;
-            background: var(--surface);
-            backdrop-filter: var(--glass-blur);
-            border-bottom: 1px solid var(--border);
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            z-index: 100;
+            display: none; align-items: center; justify-content: space-between;
+            padding: 15px 20px; background: var(--surface); backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--border); position: absolute; top: 0; left: 0; right: 0; z-index: 100;
         }
         .mobile-header .logo { font-size: 18px; font-weight: 800; background: linear-gradient(90deg, #00a884, #0078d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
 
         /* Sidebar */
         .sidebar {
-            width: 260px;
-            height: 100%;
-            background: var(--surface);
-            backdrop-filter: var(--glass-blur);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            z-index: 200;
-            transition: transform 0.3s ease;
-            user-select: none; /* Fix for blue highlight */
+            width: 260px; height: 100%; background: var(--surface); backdrop-filter: var(--glass-blur);
+            border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 200; transition: transform 0.3s ease;
         }
         .logo-area { padding: 25px 20px; border-bottom: 1px solid var(--border); }
         .logo { font-size: 22px; font-weight: 800; background: linear-gradient(90deg, #00a884, #0078d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .nav-list { padding: 15px 10px; display: flex; flex-direction: column; gap: 5px; overflow-y: auto; }
         .nav-item {
             padding: 12px 15px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;
-            color: var(--text-muted); font-size: 14px; font-weight: 600; transition: 0.2s; border: 1px solid transparent;
+            color: var(--text-muted); font-size: 14px; font-weight: 600; transition: 0.2s; border: 1px solid transparent; user-select: none;
         }
         .nav-item:hover { background: var(--surface-hover); color: var(--text); }
         .nav-item.active { background: var(--surface-hover); color: var(--text); border-color: var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
@@ -75,10 +61,8 @@
 
         /* Backdrop */
         .menu-backdrop {
-            display: none;
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
-            z-index: 150;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 150;
         }
 
         /* Main Content */
@@ -95,8 +79,7 @@
         .glass-panel {
             background: var(--surface); backdrop-filter: var(--glass-blur);
             border: 1px solid var(--border); border-radius: 20px; padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: flex; flex-direction: column; gap: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 20px;
         }
 
         .input-group { display: flex; gap: 10px; width: 100%; }
@@ -136,7 +119,7 @@
         .alt-item:hover { background: var(--surface-hover); }
         .alt-item img { width: 20px; }
         
-        /* AirDrop & Clipboard */
+        /* AirDrop */
         .drop-zone { height: 200px; border: 2px dashed var(--border); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-muted); cursor: pointer; transition: 0.2s; background: rgba(0,0,0,0.2); }
         .drop-zone:hover { border-color: var(--primary); background: rgba(0, 168, 132, 0.05); }
         .progress-container { height: 8px; background: var(--surface-hover); border-radius: 4px; overflow: hidden; display: none; }
@@ -144,6 +127,9 @@
         .status-text { text-align: center; font-size: 14px; color: var(--text-muted); }
         .room-header { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border); }
         
+        /* QR Code */
+        .qr-container { display: flex; justify-content: center; padding: 20px; background: white; border-radius: 12px; width: max-content; margin: 0 auto; }
+
         .spinner { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -184,7 +170,7 @@
         <div class="nav-list">
             <div class="nav-item active" onclick="navTo('downloader', this)"><img src="https://img.icons8.com/color/48/000000/download.png"> Downloader</div>
             <div class="nav-item" onclick="navTo('airdrop', this)"><img src="https://img.icons8.com/color/48/000000/airdrop.png"> AirDrop</div>
-            <div class="nav-item" onclick="navTo('clipboard', this)"><img src="https://img.icons8.com/color/48/000000/clipboard.png"> Cloud Clipboard</div>
+            <div class="nav-item" onclick="navTo('qr', this)"><img src="https://img.icons8.com/color/48/000000/qr-code.png"> QR Generator</div>
         </div>
     </div>
 
@@ -270,23 +256,16 @@
             </div>
         </div>
 
-        <!-- 3. Cloud Clipboard -->
-        <div id="app-clipboard" class="app-view">
-            <div class="header-title">Cloud Clipboard</div>
-            <div class="header-desc">Sync text instantly between devices.</div>
-            <div class="glass-panel" style="width: 100%; max-width: 600px;">
-                <div id="clipJoin" style="display:flex; flex-direction:column; gap:15px; text-align:center;">
-                    <input type="text" id="clipRoomCode" class="input-field" placeholder="Enter Room Code (ABC123)" style="text-align:center; text-transform:uppercase; letter-spacing:2px;">
-                    <button class="btn btn-blue" onclick="joinClipboard()">Connect</button>
+        <!-- 3. QR Generator -->
+        <div id="app-qr" class="app-view">
+            <div class="header-title">QR Generator</div>
+            <div class="header-desc">Create scannable codes instantly.</div>
+            <div class="glass-panel" style="width: 100%; max-width: 500px;">
+                <div class="input-group">
+                    <input type="text" id="qrText" class="input-field" placeholder="Enter URL or text..." onkeypress="if(event.key==='Enter') generateQR()">
+                    <button class="btn btn-blue" onclick="generateQR()">Generate</button>
                 </div>
-                <div id="clipActive" style="display:none; flex-direction:column; gap:15px;">
-                    <div class="room-header">
-                        <div><span style="font-size:12px; color:#aaa;">ROOM</span><br><span id="clipRoomDisplay" style="color:var(--blue); font-weight:800; font-size:18px;"></span></div>
-                        <button class="btn" style="padding:8px 12px; background:#e74c3c; color:white;" onclick="leaveClipboard()">Disconnect</button>
-                    </div>
-                    <textarea id="clipText" class="input-field" rows="5" placeholder="Paste text here..." oninput="sendClipText(this.value)"></textarea>
-                    <div class="status-text" id="clipStatus">Waiting for peer...</div>
-                </div>
+                <div id="qrcode" class="qr-container"></div>
             </div>
         </div>
 
@@ -356,7 +335,6 @@
             let sentOffer = false;
             let pendingIceCandidates = [];
             
-            // Added TCP TURN servers for strict mobile NATs
             const pc = new RTCPeerConnection({ 
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
@@ -380,12 +358,6 @@
                 e.channel.onopen = onOpen;
                 e.channel.onmessage = onMessage;
                 e.channel.binaryType = 'arraybuffer';
-            };
-
-            pc.oniceconnectionstatechange = () => {
-                if (pc.iceConnectionState === 'failed') {
-                    console.log("WebRTC Failed. Check network/firewall.");
-                }
             };
 
             async function sendSignal(r, id, text) {
@@ -475,38 +447,67 @@
                 }
             );
         }
+        
         function sendFile(file) {
             if(!airdropRtc || airdropRtc.channel.readyState !== 'open') return alert("Not connected!");
+            document.getElementById('airdropProgress').style.display = 'block';
+            document.getElementById('airdropProgressBar').style.width = '0%';
+            document.getElementById('airdropStatus').innerText = "Sending: " + file.name;
+            
             airdropRtc.channel.send(JSON.stringify({ type: 'start', name: file.name, size: file.size }));
-            let offset = 0; const reader = new FileReader();
+            
+            let offset = 0; 
+            const chunkSize = 64 * 1024; // TURBO: 64KB chunks
+            const reader = new FileReader();
+
             reader.onload = (e) => {
+                if (airdropRtc.channel.readyState !== 'open') return;
                 airdropRtc.channel.send(e.target.result);
                 offset += e.target.result.byteLength;
                 document.getElementById('airdropProgressBar').style.width = (offset/file.size)*100 + '%';
-                if (offset < file.size) readSlice(offset);
-                else { airdropRtc.channel.send(JSON.stringify({type:'end'})); document.getElementById('airdropStatus').innerText = "Sent!"; }
+                
+                if (offset < file.size) {
+                    // Throttling: if the buffer is full, wait 50ms before sending the next chunk
+                    if (airdropRtc.channel.bufferedAmount > 1024 * 1024) { 
+                        setTimeout(() => readSlice(offset), 50);
+                    } else {
+                        readSlice(offset);
+                    }
+                } else { 
+                    airdropRtc.channel.send(JSON.stringify({type:'end'})); 
+                    document.getElementById('airdropStatus').innerText = "File sent successfully!"; 
+                    setTimeout(() => {
+                        document.getElementById('airdropProgress').style.display = 'none';
+                        document.getElementById('airdropStatus').innerText = "Connected! Ready to send files.";
+                    }, 2000);
+                }
             };
-            const readSlice = (o) => reader.readAsArrayBuffer(file.slice(offset, o + 16384));
+            
+            const readSlice = (o) => reader.readAsArrayBuffer(file.slice(offset, o + chunkSize));
             readSlice(0);
         }
-        function leaveAirdrop() { if(airdropRtc) airdropRtc.stop(); document.getElementById('airdropJoin').style.display = 'flex'; document.getElementById('airdropActive').style.display = 'none'; }
-
-        // --- Clipboard Logic ---
-        let clipRtc = null;
-        async function joinClipboard() {
-            const room = document.getElementById('clipRoomCode').value.trim().toUpperCase();
-            if(!room) return alert("Enter room code");
-            document.getElementById('clipJoin').style.display = 'none';
-            document.getElementById('clipActive').style.display = 'flex';
-            document.getElementById('clipRoomDisplay').innerText = room;
-            
-            clipRtc = await initRTC(room, 
-                () => { document.getElementById('clipStatus').innerText = "Connected!"; document.getElementById('clipStatus').style.color = "var(--primary)"; },
-                (e) => { if (typeof e.data === 'string') document.getElementById('clipText').value = e.data; }
-            );
+        
+        function leaveAirdrop() { 
+            if(airdropRtc) airdropRtc.stop(); 
+            document.getElementById('airdropJoin').style.display = 'flex'; 
+            document.getElementById('airdropActive').style.display = 'none'; 
+            document.getElementById('airdropProgress').style.display = 'none';
+            document.getElementById('airdropStatus').innerText = "Waiting for peer...";
+            document.getElementById('airdropStatus').style.color = "var(--text-muted)";
         }
-        function sendClipText(text) { if(clipRtc && clipRtc.channel.readyState === 'open') clipRtc.channel.send(text); }
-        function leaveClipboard() { if(clipRtc) clipRtc.stop(); document.getElementById('clipJoin').style.display = 'flex'; document.getElementById('clipActive').style.display = 'none'; }
+
+        // --- QR Logic ---
+        let qrCodeObj = null;
+        function generateQR() {
+            const text = document.getElementById('qrText').value.trim();
+            if(!text) return;
+            document.getElementById('qrcode').innerHTML = '';
+            qrCodeObj = new QRCode(document.getElementById('qrcode'), {
+                text: text, width: 200, height: 200,
+                colorDark : "#000000", colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
     </script>
 </body>
 </html>
