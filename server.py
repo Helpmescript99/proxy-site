@@ -86,13 +86,20 @@ def extract_media():
         except Exception:
             pass
 
+    # YT-DLP WITH IOS SPOOFING TO BYPASS BOT CHECK
     ydl_opts = {
         'format': 'best[ext=mp4]/best',
         'quiet': True,
         'no_warnings': True,
         'nocheckcertificate': True,
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['ios', 'android', 'mweb'],
+                'player_skip': ['webpage', 'configs'],
+            }
+        },
         'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+            'User-Agent': 'com.google.ios.youtube/19.09.3 (iPhone14,3; U; CPU iOS 15_6 like Mac OS X)'
         }
     }
     
@@ -123,17 +130,11 @@ def extract_media():
 @app.route("/api/download")
 def download_file():
     url = request.args.get("url")
-    # Get filename passed from frontend, default to video.mp4
     filename = request.args.get("filename", "video.mp4")
     if not url: return "No URL", 400
-    
     try:
         req = session.get(url, stream=True, timeout=15)
-        
-        # Ensure the filename has .mp4 if it doesn't have an extension
-        if '.' not in filename:
-            filename += '.mp4'
-            
+        if '.' not in filename: filename += '.mp4'
         return Response(
             stream_with_context(req.iter_content(chunk_size=8192)),
             content_type=req.headers.get('content-type', 'video/mp4'),

@@ -6,59 +6,26 @@
     <title>Minxy Utility</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        
         :root {
-            --bg: #0f1015;
-            --surface: #1a1b22;
-            --surface-light: #252731;
-            --primary: #00a884;
-            --primary-hover: #008f6f;
-            --blue: #0078d4;
-            --blue-hover: #106ebe;
-            --text: #ffffff;
-            --text-muted: #9ca3af;
-            --border: #2d303e;
+            --bg: #0f1015; --surface: #1a1b22; --surface-light: #252731; --primary: #00a884;
+            --primary-hover: #008f6f; --blue: #0078d4; --blue-hover: #106ebe; --text: #ffffff;
+            --text-muted: #9ca3af; --border: #2d303e;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        
-        body { 
-            background: var(--bg); 
-            color: var(--text); 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden;
-            background-image: radial-gradient(circle at top right, rgba(0, 168, 132, 0.15), transparent 40%),
-                              radial-gradient(circle at bottom left, rgba(0, 120, 212, 0.15), transparent 40%);
-        }
-
-        header { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 20px 40px; 
-            background: rgba(15, 16, 21, 0.8); 
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-        }
+        body { background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; background-image: radial-gradient(circle at top right, rgba(0, 168, 132, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(0, 120, 212, 0.15), transparent 40%); }
+        header { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; background: rgba(15, 16, 21, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
         .logo { font-size: 24px; font-weight: 800; background: linear-gradient(90deg, #00a884, #0078d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
         .tabs { display: flex; gap: 10px; background: var(--surface); padding: 5px; border-radius: 12px; border: 1px solid var(--border); }
         .tab-btn { padding: 10px 24px; border: none; background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: 0.2s; }
         .tab-btn:hover { color: var(--text); }
         .tab-btn.active { background: var(--surface-light); color: var(--text); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-
         main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; overflow-y: auto; }
         .app-section { display: none; width: 100%; max-width: 800px; animation: fadeIn 0.3s ease-out; }
         .app-section.active { display: flex; flex-direction: column; gap: 20px; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         .input-group { display: flex; gap: 12px; width: 100%; }
         .input-field { flex: 1; padding: 18px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; color: var(--text); font-size: 16px; outline: none; transition: 0.2s; }
         .input-field:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.2); }
-        
         .btn { padding: 18px 32px; border: none; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
         .btn-blue { background: var(--blue); color: white; }
         .btn-blue:hover { background: var(--blue-hover); transform: translateY(-2px); }
@@ -66,42 +33,29 @@
         .btn-green:hover { background: var(--primary-hover); transform: translateY(-2px); }
         .btn-red { background: #e74c3c; color: white; }
         .btn-red:hover { background: #c0392b; }
-
         .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: none; flex-direction: column; gap: 16px; margin-top: 20px; }
         .result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
         .result-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
         .result-author { color: var(--text-muted); font-size: 14px; }
         .video-preview { width: 100%; max-height: 400px; border-radius: 12px; background: #000; object-fit: contain; }
-
         .airdrop-join { display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
         .airdrop-join h2 { font-size: 28px; }
         .airdrop-join p { color: var(--text-muted); }
         .room-input { text-align: center; text-transform: uppercase; letter-spacing: 4px; font-size: 24px; font-weight: 800; }
-        
         .drop-zone { width: 100%; height: 250px; border: 2px dashed var(--border); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; color: var(--text-muted); cursor: pointer; transition: 0.2s; background: var(--surface); }
         .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: rgba(0, 168, 132, 0.05); color: var(--text); }
         .drop-zone img { width: 60px; opacity: 0.8; }
-        
         .progress-container { width: 100%; height: 8px; background: var(--surface-light); border-radius: 4px; overflow: hidden; display: none; margin-top: 10px; }
         .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.1s; }
         .status-text { text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 10px; }
-        
         .room-header { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border); }
         .room-code { font-size: 20px; font-weight: 800; color: var(--primary); letter-spacing: 2px; }
-
         .spinner { display: none; width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        @media (max-width: 768px) {
-            .input-group { flex-direction: column; }
-            header { padding: 15px 20px; flex-direction: column; gap: 15px; }
-            .tabs { width: 100%; justify-content: center; }
-            .tab-btn { flex: 1; }
-        }
+        @media (max-width: 768px) { .input-group { flex-direction: column; } header { padding: 15px 20px; flex-direction: column; gap: 15px; } .tabs { width: 100%; justify-content: center; } .tab-btn { flex: 1; } }
     </style>
 </head>
 <body>
-
     <header>
         <div class="logo">Minxy Utility</div>
         <div class="tabs">
@@ -109,15 +63,12 @@
             <button class="tab-btn" onclick="switchTab('airdrop')" id="tab-btn-airdrop">AirDrop</button>
         </div>
     </header>
-
     <main>
-        <!-- Downloader -->
         <div id="section-downloader" class="app-section active">
             <div style="text-align: center; margin-bottom: 20px;">
                 <h1 style="font-size: 32px; margin-bottom: 10px;">Download Anything.</h1>
                 <p style="color: var(--text-muted);">Paste a link from YouTube, TikTok, Instagram, Twitter, or 1000+ other sites.</p>
             </div>
-
             <div class="input-group">
                 <input type="text" id="mediaUrl" class="input-field" placeholder="https://www.youtube.com/watch?v=..." onkeypress="if(event.key==='Enter') extractMedia()">
                 <button class="btn btn-blue" onclick="extractMedia()">
@@ -125,9 +76,7 @@
                     <span id="extractBtnText">Extract</span>
                 </button>
             </div>
-
             <div id="errorBox" style="display: none; color: #ff6b6b; background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(231, 76, 60, 0.3); text-align: center;"></div>
-
             <div id="mediaResult" class="result-card">
                 <div class="result-header">
                     <div>
@@ -139,8 +88,6 @@
                 <video id="resVideo" class="video-preview" controls style="display:none;"></video>
             </div>
         </div>
-
-        <!-- AirDrop -->
         <div id="section-airdrop" class="app-section">
             <div id="airdropJoin" class="airdrop-join">
                 <div style="background: var(--surface); padding: 20px; border-radius: 50%; border: 1px solid var(--border);">
@@ -148,13 +95,11 @@
                 </div>
                 <h2>Local File Share</h2>
                 <p>Create or join a room to send files directly to another device.<br>No servers, no limits.</p>
-                
                 <div class="input-group" style="max-width: 400px; margin-top: 20px;">
                     <input type="text" id="airdropRoomCode" class="input-field room-input" placeholder="ABC123" maxlength="8">
                     <button class="btn btn-green" onclick="joinAirdrop()">Connect</button>
                 </div>
             </div>
-
             <div id="airdropActive" style="display: none; flex-direction: column; gap: 20px;">
                 <div class="room-header">
                     <div>
@@ -163,14 +108,12 @@
                     </div>
                     <button class="btn btn-red" style="padding: 10px 20px; font-size: 14px;" onclick="leaveAirdrop()">Disconnect</button>
                 </div>
-
                 <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
                     <img src="https://img.icons8.com/color/96/000000/upload.png">
                     <h3>Click or Drag File Here</h3>
                     <p style="font-size: 14px;">Send photos, videos, documents, anything.</p>
                     <input type="file" id="fileInput" style="display: none;" onchange="sendFile(this.files[0])">
                 </div>
-
                 <div class="progress-container" id="airdropProgress">
                     <div class="progress-bar" id="airdropProgressBar"></div>
                 </div>
@@ -178,7 +121,6 @@
             </div>
         </div>
     </main>
-
     <script>
         function switchTab(tabId) {
             document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active'));
@@ -195,93 +137,56 @@
             const btnText = document.getElementById('extractBtnText');
             const errorBox = document.getElementById('errorBox');
             const resultCard = document.getElementById('mediaResult');
-
-            btn.disabled = true;
-            spinner.style.display = 'block';
-            btnText.innerText = 'Extracting...';
-            errorBox.style.display = 'none';
-            resultCard.style.display = 'none';
-
+            btn.disabled = true; spinner.style.display = 'block'; btnText.innerText = 'Extracting...';
+            errorBox.style.display = 'none'; resultCard.style.display = 'none';
             try {
                 const res = await fetch('/api/extract?url=' + encodeURIComponent(url));
                 const data = await res.json();
-
                 if(data.error) {
-                    errorBox.innerText = data.error;
-                    errorBox.style.display = 'block';
+                    errorBox.innerText = data.error; errorBox.style.display = 'block';
                 } else {
                     const safeTitle = (data.title || "video").replace(/[^a-z0-9]/gi, '_').toLowerCase();
                     const fileExt = data.ext || "mp4";
-                    
                     document.getElementById('resTitle').innerText = data.title || "Media File";
                     document.getElementById('resAuthor').innerText = data.uploader ? "@" + data.uploader : "Unknown Source";
-                    
                     const dlBtn = document.getElementById('resDownloadBtn');
-                    dlBtn.href = '/api/download?url=' + encodeURIComponent(data.url);
+                    dlBtn.href = '/api/download?url=' + encodeURIComponent(data.url) + '&filename=' + safeTitle + '.' + fileExt;
                     dlBtn.setAttribute('download', safeTitle + '.' + fileExt);
-                    
                     const video = document.getElementById('resVideo');
                     if (fileExt === 'mp4' || fileExt === 'webm' || data.url.includes('.mp4')) {
-                        video.src = data.url;
-                        video.style.display = 'block';
-                    } else {
-                        video.style.display = 'none';
-                    }
+                        video.src = data.url; video.style.display = 'block';
+                    } else { video.style.display = 'none'; }
                     resultCard.style.display = 'flex';
                 }
-            } catch(e) {
-                errorBox.innerText = "Failed to connect to server.";
-                errorBox.style.display = 'block';
-            } finally {
-                btn.disabled = false;
-                spinner.style.display = 'none';
-                btnText.innerText = 'Extract';
-            }
+            } catch(e) { errorBox.innerText = "Failed to connect to server."; errorBox.style.display = 'block'; }
+            finally { btn.disabled = false; spinner.style.display = 'none'; btnText.innerText = 'Extract'; }
         }
 
-        // --- Fixed AirDrop Logic ---
         let rtcPeer = null, rtcChannel = null, rtcRoom = "";
-        let receivedBuffers = [];
-        let receivedSize = 0;
-        let incomingFile = null;
+        let receivedBuffers = [], receivedSize = 0, incomingFile = null;
         let airdropPollInterval = null;
-        
-        // UNIQUE ID: Prevents the device from reading its own signaling messages
         const rtcMyId = "RTC_" + Math.random().toString(36).substring(2, 9);
         let sentOffer = false;
+        let pendingIceCandidates = []; // Store ICE candidates until remote description is set
 
         async function joinAirdrop() {
             rtcRoom = document.getElementById('airdropRoomCode').value.trim().toUpperCase();
             if(!rtcRoom) return alert("Enter a room code first");
-
             document.getElementById('airdropJoin').style.display = 'none';
             document.getElementById('airdropActive').style.display = 'flex';
             document.getElementById('airdropRoomDisplay').innerText = rtcRoom;
-
             await setupRTC();
-            
-            // Broadcast join
             await sendSignal('RTC_JOIN');
-            
             airdropPollInterval = setInterval(async () => {
                 const res = await fetch('/api/chat/' + rtcRoom);
                 const data = await res.json();
-                
                 for (const msg of data.messages) {
-                    // Ignore messages sent by ME
                     if (msg.user === rtcMyId) continue;
-
-                    if (msg.text === 'RTC_JOIN' && !sentOffer) {
-                        // If someone else joins, and I haven't offered yet, offer now
-                        await createOffer();
-                    }
-                    
+                    if (msg.text === 'RTC_JOIN' && !sentOffer) await createOffer();
                     if (msg.text.startsWith('RTC_OFFER:') && msg.user !== rtcMyId) {
                         const offer = JSON.parse(msg.text.replace('RTC_OFFER:', ''));
-                        // Handle Glare (both sent offers at same time)
                         const polite = rtcMyId > msg.user;
                         const collision = rtcPeer.signalingState === 'have-local-offer';
-                        
                         if (collision) {
                             if (polite) {
                                 await rtcPeer.setLocalDescription({type: "rollback"});
@@ -296,44 +201,49 @@
                             await rtcPeer.setLocalDescription(answer);
                             await sendSignal('RTC_ANSWER:' + JSON.stringify(answer));
                         }
+                        // Process any queued ICE candidates
+                        for (const cand of pendingIceCandidates) {
+                            await rtcPeer.addIceCandidate(new RTCIceCandidate(cand)).catch(e => console.log(e));
+                        }
+                        pendingIceCandidates = [];
                     }
-                    
                     if (msg.text.startsWith('RTC_ANSWER:') && rtcPeer.signalingState !== 'stable') {
-                        const answer = JSON.parse(msg.text.replace('RTC_ANSWER:', ''));
-                        await rtcPeer.setRemoteDescription(answer);
+                        await rtcPeer.setRemoteDescription(JSON.parse(msg.text.replace('RTC_ANSWER:', '')));
+                        for (const cand of pendingIceCandidates) {
+                            await rtcPeer.addIceCandidate(new RTCIceCandidate(cand)).catch(e => console.log(e));
+                        }
+                        pendingIceCandidates = [];
                     }
-                    
-                    // PROCESS ICE CANDIDATES (The missing piece)
                     if (msg.text.startsWith('RTC_ICE:')) {
                         const cand = JSON.parse(msg.text.replace('RTC_ICE:', ''));
-                        await rtcPeer.addIceCandidate(new RTCIceCandidate(cand)).catch(e => console.log('ICE error', e));
+                        if (rtcPeer.remoteDescription) {
+                            await rtcPeer.addIceCandidate(new RTCIceCandidate(cand)).catch(e => console.log(e));
+                        } else {
+                            pendingIceCandidates.push(cand); // Queue if remote desc not ready
+                        }
                     }
                 }
             }, 2000);
         }
 
         async function sendSignal(text) {
-            await fetch('/api/chat/' + rtcRoom, { 
-                method: 'POST', 
-                headers: {'Content-Type': 'application/json'}, 
-                body: JSON.stringify({user: rtcMyId, text: text}) 
-            });
+            await fetch('/api/chat/' + rtcRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: rtcMyId, text: text}) });
         }
 
         async function setupRTC() {
-            rtcPeer = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
-            
-            rtcPeer.onicecandidate = async (event) => {
-                if (event.candidate) {
-                    await sendSignal('RTC_ICE:' + JSON.stringify(event.candidate));
-                }
-            };
-
-            rtcPeer.ondatachannel = (event) => {
-                rtcChannel = event.channel;
-                setupChannel();
-            };
-
+            rtcPeer = new RTCPeerConnection({ 
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    // PUBLIC TURN SERVER FOR STRICT NATs
+                    { 
+                        urls: 'turn:openrelay.metered.ca:80', 
+                        username: 'openrelayproject', 
+                        credential: 'openrelayproject' 
+                    }
+                ] 
+            });
+            rtcPeer.onicecandidate = async (event) => { if (event.candidate) await sendSignal('RTC_ICE:' + JSON.stringify(event.candidate)); };
+            rtcPeer.ondatachannel = (event) => { rtcChannel = event.channel; setupChannel(); };
             rtcPeer.oniceconnectionstatechange = () => {
                 if (rtcPeer.iceConnectionState === "connected" || rtcPeer.iceConnectionState === "completed") {
                     document.getElementById('airdropStatus').innerText = "Connected! Ready to send files.";
@@ -341,7 +251,6 @@
                     document.getElementById('dropZone').style.borderColor = "var(--primary)";
                 }
             };
-
             rtcChannel = rtcPeer.createDataChannel("fileTransfer");
             setupChannel();
         }
@@ -365,18 +274,14 @@
                 if (typeof event.data === 'string') {
                     const meta = JSON.parse(event.data);
                     if (meta.type === 'start') {
-                        incomingFile = meta;
-                        receivedBuffers = [];
-                        receivedSize = 0;
+                        incomingFile = meta; receivedBuffers = []; receivedSize = 0;
                         document.getElementById('airdropProgress').style.display = 'block';
                         document.getElementById('airdropStatus').innerText = "Receiving: " + meta.name;
                     } else if (meta.type === 'end') {
                         const blob = new Blob(receivedBuffers);
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
-                        a.href = url;
-                        a.download = incomingFile.name;
-                        a.click();
+                        a.href = url; a.download = incomingFile.name; a.click();
                         URL.revokeObjectURL(url);
                         document.getElementById('airdropProgress').style.display = 'none';
                         document.getElementById('airdropStatus').innerText = "File received successfully!";
@@ -385,8 +290,7 @@
                 } else {
                     receivedBuffers.push(event.data);
                     receivedSize += event.data.byteLength;
-                    const percent = (receivedSize / incomingFile.size) * 100;
-                    document.getElementById('airdropProgressBar').style.width = percent + '%';
+                    document.getElementById('airdropProgressBar').style.width = (receivedSize / incomingFile.size) * 100 + '%';
                 }
             };
         }
@@ -396,22 +300,16 @@
             document.getElementById('airdropProgress').style.display = 'block';
             document.getElementById('airdropProgressBar').style.width = '0%';
             document.getElementById('airdropStatus').innerText = "Sending: " + file.name;
-
             rtcChannel.send(JSON.stringify({ type: 'start', name: file.name, size: file.size, mime: file.type }));
-            
             let offset = 0;
-            const chunkSize = 16384; // 16KB chunks
+            const chunkSize = 16384;
             const reader = new FileReader();
-
             reader.onload = (e) => {
                 rtcChannel.send(e.target.result);
                 offset += e.target.result.byteLength;
-                const percent = (offset / file.size) * 100;
-                document.getElementById('airdropProgressBar').style.width = percent + '%';
-
-                if (offset < file.size) {
-                    readSlice(offset);
-                } else {
+                document.getElementById('airdropProgressBar').style.width = (offset / file.size) * 100 + '%';
+                if (offset < file.size) readSlice(offset);
+                else {
                     rtcChannel.send(JSON.stringify({ type: 'end' }));
                     document.getElementById('airdropStatus').innerText = "File sent successfully!";
                     setTimeout(() => {
@@ -420,7 +318,6 @@
                     }, 2000);
                 }
             };
-
             const readSlice = (o) => {
                 const slice = file.slice(offset, o + chunkSize);
                 reader.readAsArrayBuffer(slice);
@@ -431,7 +328,7 @@
         function leaveAirdrop() {
             if(rtcPeer) { rtcPeer.close(); rtcPeer = null; }
             if(airdropPollInterval) { clearInterval(airdropPollInterval); airdropPollInterval = null; }
-            sentOffer = false;
+            sentOffer = false; pendingIceCandidates = [];
             document.getElementById('airdropJoin').style.display = 'flex';
             document.getElementById('airdropActive').style.display = 'none';
             document.getElementById('airdropRoomCode').value = '';
