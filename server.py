@@ -71,7 +71,6 @@ def extract_media():
     url = request.args.get("url")
     if not url: return jsonify({"error": "No URL provided"})
     
-    # --- TIKTOK SPECIFIC FALLBACK ---
     if "tiktok.com" in url:
         try:
             r = requests.get(f"https://www.tikwm.com/api/?url={quote(url)}", timeout=10)
@@ -84,13 +83,9 @@ def extract_media():
                     "ext": "mp4",
                     "uploader": data["data"]["author"]["nickname"]
                 })
-            else:
-                # If tikwm fails, pass to the error handler below to try yt-dlp
-                pass
         except Exception:
-            pass # Fall through to yt-dlp
+            pass
 
-    # --- YT-DLP (YouTube, Instagram, Twitter, etc.) ---
     ydl_opts = {
         'format': 'best[ext=mp4]/best',
         'quiet': True,
@@ -104,7 +99,6 @@ def extract_media():
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-            
             direct_url = info.get('url')
             if not direct_url and 'formats' in info:
                 for f in reversed(info['formats']):
@@ -129,19 +123,20 @@ def extract_media():
 @app.route("/api/download")
 def download_file():
     url = request.args.get("url")
+    # Get filename passed from frontend, default to video.mp4
+    filename = request.args.get("filename", "video.mp4")
     if not url: return "No URL", 400
+    
     try:
         req = session.get(url, stream=True, timeout=15)
-        filename = "downloaded_file"
-        cd = req.headers.get('content-disposition')
-        if cd and 'filename=' in cd:
-            filename = cd.split('filename=')[1].strip('"\'')
-        else:
-            filename = url.split('/')[-1].split('?')[0] or "downloaded_file"
+        
+        # Ensure the filename has .mp4 if it doesn't have an extension
+        if '.' not in filename:
+            filename += '.mp4'
             
         return Response(
             stream_with_context(req.iter_content(chunk_size=8192)),
-            content_type=req.headers.get('content-type', 'application/octet-stream'),
+            content_type=req.headers.get('content-type', 'video/mp4'),
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
     except Exception as e:

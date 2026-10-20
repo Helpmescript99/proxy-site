@@ -33,7 +33,6 @@
                               radial-gradient(circle at bottom left, rgba(0, 120, 212, 0.15), transparent 40%);
         }
 
-        /* Header & Tabs */
         header { 
             display: flex; 
             align-items: center; 
@@ -46,68 +45,21 @@
         .logo { font-size: 24px; font-weight: 800; background: linear-gradient(90deg, #00a884, #0078d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
         .tabs { display: flex; gap: 10px; background: var(--surface); padding: 5px; border-radius: 12px; border: 1px solid var(--border); }
-        .tab-btn { 
-            padding: 10px 24px; 
-            border: none; 
-            background: transparent; 
-            color: var(--text-muted); 
-            font-size: 14px; 
-            font-weight: 600; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            transition: 0.2s;
-        }
+        .tab-btn { padding: 10px 24px; border: none; background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: 0.2s; }
         .tab-btn:hover { color: var(--text); }
         .tab-btn.active { background: var(--surface-light); color: var(--text); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
 
-        /* Main Content */
-        main { 
-            flex: 1; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 40px; 
-            overflow-y: auto;
-        }
-
-        .app-section { 
-            display: none; 
-            width: 100%; 
-            max-width: 800px; 
-            animation: fadeIn 0.3s ease-out;
-        }
+        main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; overflow-y: auto; }
+        .app-section { display: none; width: 100%; max-width: 800px; animation: fadeIn 0.3s ease-out; }
         .app-section.active { display: flex; flex-direction: column; gap: 20px; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Downloader */
         .input-group { display: flex; gap: 12px; width: 100%; }
-        .input-field { 
-            flex: 1; 
-            padding: 18px 24px; 
-            background: var(--surface); 
-            border: 1px solid var(--border); 
-            border-radius: 16px; 
-            color: var(--text); 
-            font-size: 16px; 
-            outline: none; 
-            transition: 0.2s;
-        }
+        .input-field { flex: 1; padding: 18px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; color: var(--text); font-size: 16px; outline: none; transition: 0.2s; }
         .input-field:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.2); }
         
-        .btn { 
-            padding: 18px 32px; 
-            border: none; 
-            border-radius: 16px; 
-            font-size: 16px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
+        .btn { padding: 18px 32px; border: none; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
         .btn-blue { background: var(--blue); color: white; }
         .btn-blue:hover { background: var(--blue-hover); transform: translateY(-2px); }
         .btn-green { background: var(--primary); color: white; }
@@ -115,42 +67,18 @@
         .btn-red { background: #e74c3c; color: white; }
         .btn-red:hover { background: #c0392b; }
 
-        .result-card { 
-            background: var(--surface); 
-            border: 1px solid var(--border); 
-            border-radius: 16px; 
-            padding: 24px; 
-            display: none; 
-            flex-direction: column; 
-            gap: 16px;
-            margin-top: 20px;
-        }
+        .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: none; flex-direction: column; gap: 16px; margin-top: 20px; }
         .result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
         .result-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
         .result-author { color: var(--text-muted); font-size: 14px; }
         .video-preview { width: 100%; max-height: 400px; border-radius: 12px; background: #000; object-fit: contain; }
 
-        /* AirDrop */
         .airdrop-join { display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
         .airdrop-join h2 { font-size: 28px; }
         .airdrop-join p { color: var(--text-muted); }
         .room-input { text-align: center; text-transform: uppercase; letter-spacing: 4px; font-size: 24px; font-weight: 800; }
         
-        .drop-zone { 
-            width: 100%; 
-            height: 250px; 
-            border: 2px dashed var(--border); 
-            border-radius: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 15px; 
-            color: var(--text-muted); 
-            cursor: pointer; 
-            transition: 0.2s;
-            background: var(--surface);
-        }
+        .drop-zone { width: 100%; height: 250px; border: 2px dashed var(--border); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; color: var(--text-muted); cursor: pointer; transition: 0.2s; background: var(--surface); }
         .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: rgba(0, 168, 132, 0.05); color: var(--text); }
         .drop-zone img { width: 60px; opacity: 0.8; }
         
@@ -161,11 +89,9 @@
         .room-header { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border); }
         .room-code { font-size: 20px; font-weight: 800; color: var(--primary); letter-spacing: 2px; }
 
-        /* Spinner */
         .spinner { display: none; width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Media Queries */
         @media (max-width: 768px) {
             .input-group { flex-direction: column; }
             header { padding: 15px 20px; flex-direction: column; gap: 15px; }
@@ -185,7 +111,6 @@
     </header>
 
     <main>
-        <!-- DOWNLOADER SECTION -->
         <div id="section-downloader" class="app-section active">
             <div style="text-align: center; margin-bottom: 20px;">
                 <h1 style="font-size: 32px; margin-bottom: 10px;">Download Anything.</h1>
@@ -208,15 +133,14 @@
                         <div class="result-title" id="resTitle">Video Title</div>
                         <div class="result-author" id="resAuthor">@uploader</div>
                     </div>
-                    <a id="resDownloadBtn" class="btn btn-green" href="#" download>Save File</a>
+                    <!-- Added target and download attribute below -->
+                    <a id="resDownloadBtn" class="btn btn-green" href="#" download="video.mp4">Save File</a>
                 </div>
                 <video id="resVideo" class="video-preview" controls style="display:none;"></video>
             </div>
         </div>
 
-        <!-- AIRDROP SECTION -->
         <div id="section-airdrop" class="app-section">
-            <!-- Join View -->
             <div id="airdropJoin" class="airdrop-join">
                 <div style="background: var(--surface); padding: 20px; border-radius: 50%; border: 1px solid var(--border);">
                     <img src="https://img.icons8.com/color/96/000000/airdrop.png" style="width: 64px;">
@@ -230,7 +154,6 @@
                 </div>
             </div>
 
-            <!-- Active View -->
             <div id="airdropActive" style="display: none; flex-direction: column; gap: 20px;">
                 <div class="room-header">
                     <div>
@@ -256,16 +179,13 @@
     </main>
 
     <script>
-        // --- Tab Switching ---
         function switchTab(tabId) {
             document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
             document.getElementById(`section-${tabId}`).classList.add('active');
             document.getElementById(`tab-btn-${tabId}`).classList.add('active');
         }
 
-        // --- Downloader Logic ---
         async function extractMedia() {
             const url = document.getElementById('mediaUrl').value.trim();
             if(!url) return;
@@ -290,20 +210,24 @@
                     errorBox.innerText = data.error;
                     errorBox.style.display = 'block';
                 } else {
+                    const safeTitle = (data.title || "video").replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    const fileExt = data.ext || "mp4";
+                    
                     document.getElementById('resTitle').innerText = data.title || "Media File";
                     document.getElementById('resAuthor').innerText = data.uploader ? "@" + data.uploader : "Unknown Source";
                     
                     const dlBtn = document.getElementById('resDownloadBtn');
                     dlBtn.href = '/api/download?url=' + encodeURIComponent(data.url);
+                    // FORCE THE DOWNLOAD FILENAME HERE
+                    dlBtn.setAttribute('download', safeTitle + '.' + fileExt);
                     
                     const video = document.getElementById('resVideo');
-                    if (data.ext === 'mp4' || data.ext === 'webm' || data.url.includes('.mp4')) {
+                    if (fileExt === 'mp4' || fileExt === 'webm' || data.url.includes('.mp4')) {
                         video.src = data.url;
                         video.style.display = 'block';
                     } else {
                         video.style.display = 'none';
                     }
-                    
                     resultCard.style.display = 'flex';
                 }
             } catch(e) {
@@ -316,7 +240,7 @@
             }
         }
 
-        // --- AirDrop (WebRTC) Logic ---
+        // --- AirDrop Logic ---
         let rtcPeer = null, rtcChannel = null, rtcRoom = "";
         let receivedBuffers = [];
         let receivedSize = 0;
