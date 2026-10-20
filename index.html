@@ -3,538 +3,459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Win11 Web OS</title>
+    <title>Minxy Utility</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap');
-        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: #000000 url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop') no-repeat center center fixed; background-size: cover; height: 100vh; width: 100vw; overflow: hidden; color: white; user-select: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         
-        #desktop { padding: 20px; display: grid; grid-template-columns: repeat(2, 80px); gap: 15px; height: calc(100vh - 100px); align-content: start; }
-        .icon { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 12px; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-        .icon:hover { background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); }
-        .icon img { width: 40px; height: 40px; margin-bottom: 5px; }
+        :root {
+            --bg: #0f1015;
+            --surface: #1a1b22;
+            --surface-light: #252731;
+            --primary: #00a884;
+            --primary-hover: #008f6f;
+            --blue: #0078d4;
+            --blue-hover: #106ebe;
+            --text: #ffffff;
+            --text-muted: #9ca3af;
+            --border: #2d303e;
+        }
 
-        .window { position: absolute; top: 5%; left: 15%; width: 800px; height: 550px; background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; flex-direction: column; overflow: hidden; resize: both; min-width: 300px; min-height: 200px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         
-        .title-bar { padding: 10px 15px; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: space-between; align-items: center; cursor: grab; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .title-bar:active { cursor: grabbing; }
-        .title-text { font-size: 14px; font-weight: 600; }
-        .controls { display: flex; gap: 10px; }
-        .ctrl-btn { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; }
-        .close { background: #e74c3c; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+            background-image: radial-gradient(circle at top right, rgba(0, 168, 132, 0.15), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(0, 120, 212, 0.15), transparent 40%);
+        }
 
-        #taskbar { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); height: 50px; width: 650px; background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; overflow-x: auto; padding: 0 10px; }
-        .taskbar-icon { min-width: 35px; height: 35px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .taskbar-icon:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
-        .taskbar-icon img { width: 24px; height: 24px; }
-
-        .content { flex: 1; overflow: auto; background: #1e1e1e; display: flex; flex-direction: column; position: relative; }
-        .iframe-full { width: 100%; height: 100%; border: none; background: #fff; }
-
-        /* --- MINXY BROWSER UI --- */
-        #proxyApp { background: #fff; color: #000; border: none; border-radius: 12px; }
-        #proxyApp .title-bar { background: #dee1e6; border-bottom: none; color: #000; padding: 8px 15px 0 15px; }
-        #proxyApp .title-text { display: none; } /* Hide title, use tabs */
-        #proxyApp .ctrl-btn.close { background: #ff5f56; }
+        /* Header & Tabs */
+        header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 20px 40px; 
+            background: rgba(15, 16, 21, 0.8); 
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+        .logo { font-size: 24px; font-weight: 800; background: linear-gradient(90deg, #00a884, #0078d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        /* Tab Strip */
-        .minxy-tabs { display: flex; align-items: flex-end; background: #dee1e6; padding: 8px 15px 0 15px; gap: 5px; }
-        .minxy-tab { background: #fff; padding: 8px 16px; border-radius: 8px 8px 0 0; font-size: 12px; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); width: 200px; justify-content: space-between; }
-        .minxy-tab .close-tab { font-size: 14px; color: #555; cursor: pointer; }
-        .minxy-tab .close-tab:hover { background: #e0e0e0; border-radius: 50%; }
-        .minxy-new-tab { font-size: 18px; color: #555; cursor: pointer; padding: 0 10px 5px 10px; }
+        .tabs { display: flex; gap: 10px; background: var(--surface); padding: 5px; border-radius: 12px; border: 1px solid var(--border); }
+        .tab-btn { 
+            padding: 10px 24px; 
+            border: none; 
+            background: transparent; 
+            color: var(--text-muted); 
+            font-size: 14px; 
+            font-weight: 600; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: 0.2s;
+        }
+        .tab-btn:hover { color: var(--text); }
+        .tab-btn.active { background: var(--surface-light); color: var(--text); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
 
-        /* Nav Bar */
-        .minxy-nav { display: flex; align-items: center; gap: 15px; padding: 8px 15px; background: #fff; border-bottom: 1px solid #e0e0e0; }
-        .minxy-nav-btn { background: none; border: none; font-size: 18px; color: #555; cursor: pointer; padding: 5px; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
-        .minxy-nav-btn:hover { background: #f0f0f0; }
-        .minxy-url-container { flex: 1; display: flex; align-items: center; background: #f1f3f4; border-radius: 20px; padding: 0 15px; height: 36px; }
-        .minxy-url-input { flex: 1; background: none; border: none; outline: none; font-size: 14px; color: #000; }
-        .minxy-popout { background: none; border: none; font-size: 16px; color: #555; cursor: pointer; padding: 5px; border-radius: 50%; }
-        .minxy-popout:hover { background: #e0e0e0; }
+        /* Main Content */
+        main { 
+            flex: 1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 40px; 
+            overflow-y: auto;
+        }
+
+        .app-section { 
+            display: none; 
+            width: 100%; 
+            max-width: 800px; 
+            animation: fadeIn 0.3s ease-out;
+        }
+        .app-section.active { display: flex; flex-direction: column; gap: 20px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Downloader */
+        .input-group { display: flex; gap: 12px; width: 100%; }
+        .input-field { 
+            flex: 1; 
+            padding: 18px 24px; 
+            background: var(--surface); 
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            color: var(--text); 
+            font-size: 16px; 
+            outline: none; 
+            transition: 0.2s;
+        }
+        .input-field:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.2); }
         
-        /* Profile & Menu */
-        .minxy-right { display: flex; align-items: center; gap: 15px; color: #555; }
-        .minxy-profile { width: 28px; height: 28px; background: #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; color: #fff; cursor: pointer; }
+        .btn { 
+            padding: 18px 32px; 
+            border: none; 
+            border-radius: 16px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-blue { background: var(--blue); color: white; }
+        .btn-blue:hover { background: var(--blue-hover); transform: translateY(-2px); }
+        .btn-green { background: var(--primary); color: white; }
+        .btn-green:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .btn-red { background: #e74c3c; color: white; }
+        .btn-red:hover { background: #c0392b; }
 
-        /* New Tab Page */
-        #minxyNewTab { display: flex; flex-direction: column; align-items: center; padding-top: 80px; height: 100%; background: #fff; }
-        .minxy-google-logo { width: 250px; margin-bottom: 30px; }
-        .minxy-search-bar { display: flex; align-items: center; width: 500px; max-width: 80%; background: #fff; border: 1px solid #dfe1e5; border-radius: 24px; padding: 10px 20px; box-shadow: 0 1px 6px rgba(32,33,36,0.1); }
-        .minxy-search-bar:hover { box-shadow: 0 1px 8px rgba(32,33,36,0.2); }
-        .minxy-search-input { flex: 1; border: none; outline: none; font-size: 16px; background: transparent; }
-        .minxy-search-icon { color: #9aa0a6; font-size: 20px; }
+        .result-card { 
+            background: var(--surface); 
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            padding: 24px; 
+            display: none; 
+            flex-direction: column; 
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+        .result-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+        .result-author { color: var(--text-muted); font-size: 14px; }
+        .video-preview { width: 100%; max-height: 400px; border-radius: 12px; background: #000; object-fit: contain; }
 
-        /* Other Apps */
-        .chat-container { display: flex; height: 100%; background: #0a0a0a; }
-        .chat-sidebar { width: 250px; background: #111; border-right: 1px solid #333; display: flex; flex-direction: column; }
-        .chat-sidebar-header { padding: 15px; background: #202c33; font-weight: bold; border-bottom: 1px solid #333; }
-        .chat-list { flex: 1; overflow-y: auto; }
-        .chat-list-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; display: flex; flex-direction: column; gap: 5px; }
-        .chat-list-item:hover { background: #1a1a1a; }
-        .chat-list-item.active { background: #2a3942; }
-        .chat-list-item .code { font-size: 16px; font-weight: bold; color: #00a884; }
-        .chat-main { flex: 1; display: flex; flex-direction: column; }
-        .chat-header { padding: 10px 15px; background: #202c33; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
-        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { background: #005c4b; padding: 8px 12px; border-radius: 8px; max-width: 70%; align-self: flex-end; font-size: 14px;}
-        .msg.other { background: #202c33; align-self: flex-start; }
-        .msg .time { font-size: 10px; color: #aaa; float: right; margin-top: 5px; margin-left: 10px;}
-        .chat-input-area { padding: 10px; background: #111; display: flex; gap: 10px; }
-        .chat-input-area input { flex: 1; padding: 10px; border-radius: 20px; border: none; background: #2a3942; color: white; outline: none; }
-        .chat-input-area button { padding: 10px 20px; border-radius: 20px; border: none; background: #00a884; color: white; cursor: pointer; font-weight: bold;}
-        .chat-join { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 15px; }
-        .chat-join input { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #444; background: #222; color: white; text-align: center; letter-spacing: 2px; }
+        /* AirDrop */
+        .airdrop-join { display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+        .airdrop-join h2 { font-size: 28px; }
+        .airdrop-join p { color: var(--text-muted); }
+        .room-input { text-align: center; text-transform: uppercase; letter-spacing: 4px; font-size: 24px; font-weight: 800; }
+        
+        .drop-zone { 
+            width: 100%; 
+            height: 250px; 
+            border: 2px dashed var(--border); 
+            border-radius: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 15px; 
+            color: var(--text-muted); 
+            cursor: pointer; 
+            transition: 0.2s;
+            background: var(--surface);
+        }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: rgba(0, 168, 132, 0.05); color: var(--text); }
+        .drop-zone img { width: 60px; opacity: 0.8; }
+        
+        .progress-container { width: 100%; height: 8px; background: var(--surface-light); border-radius: 4px; overflow: hidden; display: none; margin-top: 10px; }
+        .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.1s; }
+        .status-text { text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 10px; }
+        
+        .room-header { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border); }
+        .room-code { font-size: 20px; font-weight: 800; color: var(--primary); letter-spacing: 2px; }
 
-        .video-container { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; background: #000; justify-content: center; }
-        .video-wrapper { width: 45%; aspect-ratio: 4/3; background: #222; border-radius: 8px; overflow: hidden; position: relative;}
-        .video-wrapper video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        .video-wrapper .label { position: absolute; bottom: 5px; left: 10px; font-size: 12px; background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 4px; }
-        .btn { padding: 10px 20px; background: #0078d4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
-        .btn:hover { background: #106ebe; }
-        .btn-danger { background: #e74c3c; }
+        /* Spinner */
+        .spinner { display: none; width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .app-header { padding: 15px; background: #202124; display: flex; gap: 10px; }
-        .app-search { flex: 1; padding: 10px; border-radius: 20px; border: none; background: #111; color: white; outline: none; }
-        .yt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; padding: 15px; }
-        .yt-card { background: #202124; border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.2s; }
-        .yt-card:hover { background: #333; transform: scale(1.02); }
-        .yt-card img { width: 100%; height: 120px; object-fit: cover; }
-        .yt-card .info { padding: 10px; }
-        .yt-card .title { font-size: 14px; font-weight: bold; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .yt-card .author { font-size: 12px; color: #aaa; }
-        .tt-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; }
-        .tt-video { max-height: 400px; border-radius: 12px; border: 2px solid #333; }
-        .game-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 15px; }
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .input-group { flex-direction: column; }
+            header { padding: 15px 20px; flex-direction: column; gap: 15px; }
+            .tabs { width: 100%; justify-content: center; }
+            .tab-btn { flex: 1; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="desktop">
-        <div class="icon" onclick="openApp('proxyApp')"><img src="https://img.icons8.com/color/48/000000/internet-explorer.png"><span>Minxy</span></div>
-        <div class="icon" onclick="openApp('chatApp')"><img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"><span>Chat</span></div>
-        <div class="icon" onclick="openApp('ytApp')"><img src="https://img.icons8.com/color/48/000000/youtube-play.png"><span>YouTube</span></div>
-        <div class="icon" onclick="openApp('ttApp')"><img src="https://img.icons8.com/color/48/000000/tiktok.png"><span>TikTok</span></div>
-        <div class="icon" onclick="openApp('camApp')"><img src="https://img.icons8.com/color/48/000000/camera.png"><span>Camera</span></div>
-        <div class="icon" onclick="openApp('game2048')"><img src="https://img.icons8.com/color/48/000000/2048.png"><span>2048</span></div>
-        <div class="icon" onclick="openApp('gameSnake')"><img src="https://img.icons8.com/color/48/000000/snake.png"><span>Snake</span></div>
-        <div class="icon" onclick="openApp('gameFlappy')"><img src="https://img.icons8.com/color/48/000000/bird.png"><span>Flappy</span></div>
-    </div>
-
-    <!-- Minxy Browser -->
-    <div id="proxyApp" class="window" style="width: 1100px; height: 750px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'proxyApp')">
-            <div class="minxy-tabs">
-                <div class="minxy-tab"><span>New Tab</span><span class="close-tab">×</span></div>
-                <span class="minxy-new-tab">+</span>
-            </div>
-            <div class="controls"><div class="ctrl-btn close" onclick="closeApp('proxyApp')"></div></div>
+    <header>
+        <div class="logo">Minxy Utility</div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('downloader')" id="tab-btn-downloader">Downloader</button>
+            <button class="tab-btn" onclick="switchTab('airdrop')" id="tab-btn-airdrop">AirDrop</button>
         </div>
-        
-        <div class="minxy-nav">
-            <button class="minxy-nav-btn" onclick="browserBack()">←</button>
-            <button class="minxy-nav-btn" onclick="browserForward()">→</button>
-            <button class="minxy-nav-btn" onclick="browserReload()">↻</button>
-            
-            <div class="minxy-url-container">
-                <input type="text" id="browserUrl" class="minxy-url-input" placeholder="Search Google or type a URL" onkeypress="if(event.key==='Enter') browserGo()">
-                <button class="minxy-popout" onclick="popOut()" title="Open in real browser tab">↗</button>
+    </header>
+
+    <main>
+        <!-- DOWNLOADER SECTION -->
+        <div id="section-downloader" class="app-section active">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h1 style="font-size: 32px; margin-bottom: 10px;">Download Anything.</h1>
+                <p style="color: var(--text-muted);">Paste a link from YouTube, TikTok, Instagram, Twitter, or 1000+ other sites.</p>
             </div>
 
-            <div class="minxy-right">
-                <span>⋮</span>
-                <div class="minxy-profile">S</div>
-            </div>
-        </div>
-
-        <div class="content" style="background: #fff;">
-            <!-- Google Homepage Clone -->
-            <div id="minxyNewTab">
-                <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" class="minxy-google-logo">
-                <div class="minxy-search-bar">
-                    <span class="minxy-search-icon">🔍</span>
-                    <input type="text" class="minxy-search-input" placeholder="Ask Google" onkeypress="if(event.key==='Enter') minxySearch(this.value)">
-                    <span class="minxy-search-icon">🎤</span>
-                </div>
+            <div class="input-group">
+                <input type="text" id="mediaUrl" class="input-field" placeholder="https://www.youtube.com/watch?v=..." onkeypress="if(event.key==='Enter') extractMedia()">
+                <button class="btn btn-blue" onclick="extractMedia()">
+                    <div id="extractSpinner" class="spinner"></div>
+                    <span id="extractBtnText">Extract</span>
+                </button>
             </div>
 
-            <iframe id="browserFrame" class="iframe-full" src="about:blank" style="display: none;"></iframe>
-        </div>
-    </div>
+            <div id="errorBox" style="display: none; color: #ff6b6b; background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(231, 76, 60, 0.3); text-align: center;"></div>
 
-    <!-- Native YouTube -->
-    <div id="ytApp" class="window" style="width: 900px; height: 650px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'ytApp')"><span class="title-text">YouTube</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ytApp')"></div></div></div>
-        <div class="content">
-            <div id="ytSearchView" style="display: flex; flex-direction: column; height: 100%;">
-                <div class="app-header">
-                    <input type="text" id="ytSearchInput" class="app-search" placeholder="Search YouTube..." onkeypress="if(event.key==='Enter') searchYT()">
-                    <button class="btn" onclick="searchYT()">Search</button>
-                </div>
-                <div id="ytResults" class="yt-grid"></div>
-            </div>
-            <div id="ytPlayerView" style="display: none; flex-direction: column; height: 100%; background: #000;">
-                <div style="padding: 10px; background: #202124; display: flex; gap: 10px; align-items: center;">
-                    <button class="btn" onclick="backToYT()">← Back</button>
-                    <span id="ytPlayerTitle" style="font-size: 14px; font-weight: bold;"></span>
-                </div>
-                <iframe id="ytPlayerIframe" style="flex: 1; border: none; width: 100%;" allowfullscreen></iframe>
-            </div>
-        </div>
-    </div>
-
-    <!-- Native TikTok -->
-    <div id="ttApp" class="window" style="width: 500px; height: 700px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'ttApp')"><span class="title-text">TikTok Downloader</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('ttApp')"></div></div></div>
-        <div class="content">
-            <div style="padding: 20px; display: flex; gap: 10px;">
-                <input type="text" id="ttUrlInput" class="app-search" placeholder="Paste TikTok Link..." style="border-radius: 6px;">
-                <button class="btn" onclick="loadTT()">Load</button>
-            </div>
-            <div id="ttResult" class="tt-container" style="display: none; flex-direction: column; gap: 15px;">
-                <h3 id="ttTitle" style="margin: 0; font-size: 16px;"></h3>
-                <p id="ttAuthor" style="margin: 0; color: #aaa; font-size: 14px;"></p>
-                <video id="ttVideo" class="tt-video" controls autoplay loop></video>
-            </div>
-            <div id="ttLoading" style="display: none; text-align: center; margin-top: 50px; color: #aaa;">Extracting video...</div>
-        </div>
-    </div>
-
-    <!-- Camera App -->
-    <div id="camApp" class="window" style="width: 700px; height: 550px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'camApp')"><span class="title-text">Camera & Microphone</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('camApp'); stopCam()"></div></div></div>
-        <div class="content" style="align-items: center; justify-content: center; background: #000;">
-            <div id="camPermission" style="text-align: center;">
-                <h2>Camera & Mic App</h2>
-                <p style="color: #aaa;">Click below to grant permission.</p>
-                <button class="btn" onclick="startCam()">Start Camera</button>
-            </div>
-            <div id="camView" class="video-wrapper" style="display: none; width: 90%;">
-                <video id="localVideo" autoplay playsinline muted></video>
-                <div class="label">You</div>
-                <button class="btn btn-danger" style="position: absolute; bottom: 10px; right: 10px;" onclick="stopCam()">Stop</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Chat -->
-    <div id="chatApp" class="window" style="width: 850px; height: 600px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'chatApp')"><span class="title-text">WhatsApp</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('chatApp'); endCall()"></div></div></div>
-        <div class="content">
-            <div id="chatJoinScreen" class="chat-join">
-                <h2 style="margin:0;">Connect with a Friend</h2>
-                <p style="color: #888; font-size: 14px; margin: 0;">Enter a code to open or create a room.</p>
-                <input type="text" id="roomCodeInput" placeholder="ABC123" maxlength="10" oninput="this.value = this.value.toUpperCase()">
-                <button class="btn" onclick="joinChat()">Connect</button>
-            </div>
-            <div id="chatActiveScreen" class="chat-container" style="display: none;">
-                <div class="chat-sidebar">
-                    <div class="chat-sidebar-header">Chats</div>
-                    <div class="chat-list" id="chatList"></div>
-                    <div style="padding: 10px;"><button class="btn" style="width:100%; font-size:12px; padding:8px;" onclick="showJoinScreen()">+ New Chat</button></div>
-                </div>
-                <div class="chat-main">
-                    <div class="chat-header">
-                        <span id="activeRoomHeader">Select a chat</span>
-                        <button class="btn" style="padding: 5px 10px; font-size: 14px;" onclick="startCall()">📞 Call</button>
+            <div id="mediaResult" class="result-card">
+                <div class="result-header">
+                    <div>
+                        <div class="result-title" id="resTitle">Video Title</div>
+                        <div class="result-author" id="resAuthor">@uploader</div>
                     </div>
-                    <div id="callUI" class="video-container" style="display: none;">
-                        <div class="video-wrapper"><video id="callLocalVideo" autoplay playsinline muted></video><div class="label">You</div></div>
-                        <div class="video-wrapper"><video id="callRemoteVideo" autoplay playsinline></video><div class="label">Friend</div></div>
-                        <button class="btn btn-danger" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);" onclick="endCall()">End Call</button>
-                    </div>
-                    <div class="chat-messages" id="chatMessages"></div>
-                    <div class="chat-input-area" id="chatInputArea">
-                        <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
-                        <button onclick="sendMessage()">Send</button>
-                    </div>
+                    <a id="resDownloadBtn" class="btn btn-green" href="#" download>Save File</a>
                 </div>
+                <video id="resVideo" class="video-preview" controls style="display:none;"></video>
             </div>
         </div>
-    </div>
 
-    <!-- Games -->
-    <div id="game2048" class="window" style="width: 400px; height: 500px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'game2048')"><span class="title-text">2048</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('game2048')"></div></div></div>
-        <div class="content"><div class="game-container"><h2>2048</h2><canvas id="canvas2048" width="320" height="320" style="background:#bbada0; border-radius:8px;"></canvas><button class="btn" onclick="init2048()">Restart</button></div></div>
-    </div>
-    <div id="gameSnake" class="window" style="width: 400px; height: 500px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'gameSnake')"><span class="title-text">Snake</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('gameSnake')"></div></div></div>
-        <div class="content"><div class="game-container"><h2>Snake</h2><canvas id="canvasSnake" width="300" height="300" style="background:#111; border:2px solid #333;"></canvas><button class="btn" onclick="initSnake()">Restart</button></div></div>
-    </div>
-    <div id="gameFlappy" class="window" style="width: 400px; height: 500px;">
-        <div class="title-bar" onmousedown="startDrag(event, 'gameFlappy')"><span class="title-text">Flappy Bird</span><div class="controls"><div class="ctrl-btn close" onclick="closeApp('gameFlappy')"></div></div></div>
-        <div class="content"><div class="game-container"><h2>Flappy</h2><p style="color:#aaa; font-size:12px; margin:0;">Click canvas to flap.</p><canvas id="canvasFlappy" width="300" height="400" style="background:#70c5ce; border:2px solid #333;"></canvas><button class="btn" onclick="initFlappy()">Restart</button></div></div>
-    </div>
+        <!-- AIRDROP SECTION -->
+        <div id="section-airdrop" class="app-section">
+            <!-- Join View -->
+            <div id="airdropJoin" class="airdrop-join">
+                <div style="background: var(--surface); padding: 20px; border-radius: 50%; border: 1px solid var(--border);">
+                    <img src="https://img.icons8.com/color/96/000000/airdrop.png" style="width: 64px;">
+                </div>
+                <h2>Local File Share</h2>
+                <p>Create or join a room to send files directly to another device.<br>No servers, no limits.</p>
+                
+                <div class="input-group" style="max-width: 400px; margin-top: 20px;">
+                    <input type="text" id="airdropRoomCode" class="input-field room-input" placeholder="ABC123" maxlength="8">
+                    <button class="btn btn-green" onclick="joinAirdrop()">Connect</button>
+                </div>
+            </div>
 
-    <div id="taskbar">
-        <div class="taskbar-icon" onclick="openApp('proxyApp')"><img src="https://img.icons8.com/color/48/000000/internet-explorer.png"></div>
-        <div class="taskbar-icon" onclick="openApp('chatApp')"><img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"></div>
-        <div class="taskbar-icon" onclick="openApp('ytApp')"><img src="https://img.icons8.com/color/48/000000/youtube-play.png"></div>
-        <div class="taskbar-icon" onclick="openApp('ttApp')"><img src="https://img.icons8.com/color/48/000000/tiktok.png"></div>
-    </div>
+            <!-- Active View -->
+            <div id="airdropActive" style="display: none; flex-direction: column; gap: 20px;">
+                <div class="room-header">
+                    <div>
+                        <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Connected to Room</div>
+                        <div class="room-code" id="airdropRoomDisplay">ROOM</div>
+                    </div>
+                    <button class="btn btn-red" style="padding: 10px 20px; font-size: 14px;" onclick="leaveAirdrop()">Disconnect</button>
+                </div>
+
+                <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
+                    <img src="https://img.icons8.com/color/96/000000/upload.png">
+                    <h3>Click or Drag File Here</h3>
+                    <p style="font-size: 14px;">Send photos, videos, documents, anything.</p>
+                    <input type="file" id="fileInput" style="display: none;" onchange="sendFile(this.files[0])">
+                </div>
+
+                <div class="progress-container" id="airdropProgress">
+                    <div class="progress-bar" id="airdropProgressBar"></div>
+                </div>
+                <div class="status-text" id="airdropStatus">Waiting for peer to connect...</div>
+            </div>
+        </div>
+    </main>
 
     <script>
-        // --- Window Manager ---
-        let zIndex = 10;
-        function openApp(id) { const app = document.getElementById(id); app.style.display = 'flex'; app.style.zIndex = ++zIndex; }
-        function closeApp(id) { document.getElementById(id).style.display = 'none'; }
-        function startDrag(e, id) {
-            const el = document.getElementById(id); const rect = el.getBoundingClientRect();
-            const shiftX = e.clientX - rect.left; const shiftY = e.clientY - rect.top; el.style.zIndex = ++zIndex;
-            function moveAt(pageX, pageY) { el.style.left = pageX - shiftX + 'px'; el.style.top = pageY - shiftY + 'px'; }
-            function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
-            document.addEventListener('mousemove', onMouseMove);
-            document.onmouseup = function() { document.removeEventListener('mousemove', onMouseMove); document.onmouseup = null; };
+        // --- Tab Switching ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`section-${tabId}`).classList.add('active');
+            document.getElementById(`tab-btn-${tabId}`).classList.add('active');
         }
 
-        // --- Minxy Browser Logic ---
-        let historyStack = [], historyIndex = -1;
-        const PROXY_URL = 'https://my-proxy-worker.sherhadsulaiman772.workers.dev/p/';
-
-        function minxySearch(query) {
-            if(!query) return;
-            document.getElementById('browserUrl').value = query;
-            browserGo();
-        }
-
-        function browserGo() {
-            let url = document.getElementById('browserUrl').value.trim(); 
+        // --- Downloader Logic ---
+        async function extractMedia() {
+            const url = document.getElementById('mediaUrl').value.trim();
             if(!url) return;
-            
-            // If it doesn't look like a URL, search it on Google
-            if(!url.includes('.') && !url.startsWith('http')) {
-                url = 'https://www.google.com/search?q=' + encodeURIComponent(url);
-            } else if (!url.startsWith('http')) {
-                url = 'https://' + url;
-            }
-            
-            loadUrl(url); 
-            historyStack = historyStack.slice(0, historyIndex + 1); 
-            historyStack.push(url); 
-            historyIndex++;
-        }
 
-        function loadUrl(url) { 
-            document.getElementById('browserUrl').value = url; 
-            document.getElementById('minxyNewTab').style.display = 'none';
-            document.getElementById('browserFrame').style.display = 'block';
-            document.getElementById('browserFrame').src = PROXY_URL + encodeURIComponent(url); 
-        }
+            const btn = document.querySelector('#section-downloader .btn-blue');
+            const spinner = document.getElementById('extractSpinner');
+            const btnText = document.getElementById('extractBtnText');
+            const errorBox = document.getElementById('errorBox');
+            const resultCard = document.getElementById('mediaResult');
 
-        function popOut() {
-            const url = document.getElementById('browserUrl').value;
-            if(url) window.open(PROXY_URL + encodeURIComponent(url), '_blank');
-        }
+            btn.disabled = true;
+            spinner.style.display = 'block';
+            btnText.innerText = 'Extracting...';
+            errorBox.style.display = 'none';
+            resultCard.style.display = 'none';
 
-        function browserBack() { if(historyIndex > 0) { historyIndex--; document.getElementById('browserUrl').value = historyStack[historyIndex]; loadUrl(historyStack[historyIndex]); } }
-        function browserForward() { if(historyIndex < historyStack.length - 1) { historyIndex++; document.getElementById('browserUrl').value = historyStack[historyIndex]; loadUrl(historyStack[historyIndex]); } }
-        function browserReload() { if(historyIndex >= 0) { loadUrl(historyStack[historyIndex]); } }
-
-        // --- YouTube Native Logic ---
-        async function searchYT() {
-            const q = document.getElementById('ytSearchInput').value.trim();
-            if(!q) return;
-            const grid = document.getElementById('ytResults');
-            grid.innerHTML = '<div style="text-align:center; width:100%; margin-top:20px; color:#aaa;">Searching...</div>';
             try {
-                const res = await fetch('/api/search_yt?q=' + encodeURIComponent(q));
+                const res = await fetch('/api/extract?url=' + encodeURIComponent(url));
                 const data = await res.json();
-                grid.innerHTML = '';
-                
-                if(data.error || data.length === 0) {
-                    grid.innerHTML = `<div style="text-align:center; width:100%; padding: 20px;"><p style="color:#e74c3c; margin-bottom: 15px;">API failed to load results.</p></div>`;
-                    return;
+
+                if(data.error) {
+                    errorBox.innerText = data.error;
+                    errorBox.style.display = 'block';
+                } else {
+                    document.getElementById('resTitle').innerText = data.title || "Media File";
+                    document.getElementById('resAuthor').innerText = data.uploader ? "@" + data.uploader : "Unknown Source";
+                    
+                    const dlBtn = document.getElementById('resDownloadBtn');
+                    dlBtn.href = '/api/download?url=' + encodeURIComponent(data.url);
+                    
+                    const video = document.getElementById('resVideo');
+                    if (data.ext === 'mp4' || data.ext === 'webm' || data.url.includes('.mp4')) {
+                        video.src = data.url;
+                        video.style.display = 'block';
+                    } else {
+                        video.style.display = 'none';
+                    }
+                    
+                    resultCard.style.display = 'flex';
                 }
-
-                data.forEach(v => {
-                    const card = document.createElement('div'); card.className = 'yt-card';
-                    card.onclick = () => playYT(v.id, v.title);
-                    card.innerHTML = `<img src="${v.thumb}"><div class="info"><div class="title">${v.title}</div><div class="author">${v.author}</div></div>`;
-                    grid.appendChild(card);
-                });
-            } catch(e) { 
-                grid.innerHTML = '<div style="text-align:center; width:100%; color:red;">Failed to connect to search API.</div>'; 
+            } catch(e) {
+                errorBox.innerText = "Failed to connect to server.";
+                errorBox.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.innerText = 'Extract';
             }
         }
-        function playYT(id, title) {
-            document.getElementById('ytSearchView').style.display = 'none';
-            const player = document.getElementById('ytPlayerView');
-            player.style.display = 'flex';
-            document.getElementById('ytPlayerTitle').innerText = title;
-            document.getElementById('ytPlayerIframe').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
-        }
-        function backToYT() {
-            document.getElementById('ytPlayerView').style.display = 'none';
-            document.getElementById('ytSearchView').style.display = 'flex';
-            document.getElementById('ytPlayerIframe').src = '';
-        }
 
-        // --- TikTok Native Logic ---
-        async function loadTT() {
-            const url = document.getElementById('ttUrlInput').value.trim();
-            if(!url) return;
-            document.getElementById('ttResult').style.display = 'none';
-            document.getElementById('ttLoading').style.display = 'block';
-            try {
-                const res = await fetch('/api/tt?url=' + encodeURIComponent(url));
+        // --- AirDrop (WebRTC) Logic ---
+        let rtcPeer = null, rtcChannel = null, rtcRoom = "";
+        let receivedBuffers = [];
+        let receivedSize = 0;
+        let incomingFile = null;
+        let airdropPollInterval = null;
+
+        async function joinAirdrop() {
+            rtcRoom = document.getElementById('airdropRoomCode').value.trim().toUpperCase();
+            if(!rtcRoom) return alert("Enter a room code first");
+
+            document.getElementById('airdropJoin').style.display = 'none';
+            document.getElementById('airdropActive').style.display = 'flex';
+            document.getElementById('airdropRoomDisplay').innerText = rtcRoom;
+
+            setupRTC();
+            
+            await fetch('/api/chat/' + rtcRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: "RTC_SYSTEM", text: 'RTC_JOIN'}) });
+            
+            airdropPollInterval = setInterval(async () => {
+                const res = await fetch('/api/chat/' + rtcRoom);
                 const data = await res.json();
-                document.getElementById('ttLoading').style.display = 'none';
-                if(data.error) return alert("Error: " + data.error);
-                
-                document.getElementById('ttResult').style.display = 'flex';
-                document.getElementById('ttTitle').innerText = data.title || "TikTok Video";
-                document.getElementById('ttAuthor').innerText = "@" + (data.author || "unknown");
-                const vid = document.getElementById('ttVideo');
-                vid.src = data.video;
-                vid.play();
-            } catch(e) { document.getElementById('ttLoading').style.display = 'none'; alert("Failed to load"); }
-        }
-
-        // --- Camera & WebRTC Logic ---
-        let localStream = null; let peerConnection = null;
-        async function startCam() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                document.getElementById('localVideo').srcObject = localStream;
-                document.getElementById('camPermission').style.display = 'none';
-                document.getElementById('camView').style.display = 'block';
-            } catch (err) { alert("Camera access denied: " + err.message); }
-        }
-        function stopCam() {
-            if(localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-            document.getElementById('camPermission').style.display = 'block'; document.getElementById('camView').style.display = 'none';
-        }
-        async function startCall() {
-            if(!currentRoom) return alert("Join a chat room first!");
-            document.getElementById('callUI').style.display = 'flex'; document.getElementById('chatMessages').style.display = 'none';
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                document.getElementById('callLocalVideo').srcObject = localStream;
-                peerConnection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
-                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-                peerConnection.ontrack = (event) => { document.getElementById('callRemoteVideo').srcObject = event.streams[0]; };
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-                await fetch('/api/chat/' + currentRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: currentUser, text: 'CALL_OFFER:' + JSON.stringify(offer)}) });
-                setInterval(async () => {
-                    const res = await fetch('/api/chat/' + currentRoom); const data = await res.json();
-                    data.messages.forEach(async msg => {
-                        if(msg.text.startsWith('CALL_ANSWER:') && peerConnection.signalingState !== 'stable') {
-                            const answer = JSON.parse(msg.text.replace('CALL_ANSWER:', ''));
-                            await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-                        }
-                    });
-                }, 3000);
-            } catch(err) { alert("Call failed: " + err.message); endCall(); }
-        }
-        function endCall() {
-            if(peerConnection) { peerConnection.close(); peerConnection = null; }
-            if(localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-            document.getElementById('callUI').style.display = 'none'; document.getElementById('chatMessages').style.display = 'flex';
-        }
-
-        // --- Chat Logic ---
-        let currentRoom = ""; let currentUser = "User-" + Math.floor(Math.random() * 999); let chatPollInterval = null;
-        let activeRooms = JSON.parse(localStorage.getItem('chatRooms') || '[]');
-        function renderChatList() {
-            const list = document.getElementById('chatList'); list.innerHTML = '';
-            activeRooms.forEach(room => {
-                const div = document.createElement('div'); div.className = 'chat-list-item ' + (currentRoom === room ? 'active' : '');
-                div.innerHTML = `<span class="code">${room}</span>`; div.onclick = () => switchRoom(room); list.appendChild(div);
-            });
-        }
-        function showJoinScreen() { document.getElementById('chatJoinScreen').style.display = 'flex'; document.getElementById('chatActiveScreen').style.display = 'none'; currentRoom = ""; }
-        function joinChat() {
-            const code = document.getElementById('roomCodeInput').value.trim(); if(code.length < 3) return alert("Code must be at least 3 chars");
-            if(!activeRooms.includes(code)) { activeRooms.push(code); localStorage.setItem('chatRooms', JSON.stringify(activeRooms)); }
-            switchRoom(code);
-        }
-        function switchRoom(code) {
-            currentRoom = code; document.getElementById('chatJoinScreen').style.display = 'none'; document.getElementById('chatActiveScreen').style.display = 'flex';
-            document.getElementById('activeRoomHeader').innerText = "Room: " + code; renderChatList();
-            if(chatPollInterval) clearInterval(chatPollInterval); fetchMessages(); chatPollInterval = setInterval(fetchMessages, 2000);
-        }
-        async function fetchMessages() {
-            if(!currentRoom) return;
-            try {
-                const res = await fetch('/api/chat/' + currentRoom); const data = await res.json();
-                const container = document.getElementById('chatMessages'); container.innerHTML = "";
-                data.messages.forEach(msg => {
-                    if(msg.text.includes('CALL_')) return;
-                    const div = document.createElement('div'); div.className = 'msg ' + (msg.user === currentUser ? '' : 'other');
-                    div.innerHTML = `<div style="font-size:10px;color:#aaa;margin-bottom:2px;">${msg.user}</div>${msg.text}<span class="time">${msg.time}</span>`;
-                    container.appendChild(div);
+                data.messages.forEach(async msg => {
+                    if(msg.text.startsWith('RTC_OFFER:') && !rtcPeer.currentRemoteDescription) {
+                        await rtcPeer.setRemoteDescription(new RTCSessionDescription(JSON.parse(msg.text.replace('RTC_OFFER:', ''))));
+                        const answer = await rtcPeer.createAnswer();
+                        await rtcPeer.setLocalDescription(answer);
+                        await fetch('/api/chat/' + rtcRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: "RTC_SYSTEM", text: 'RTC_ANSWER:' + JSON.stringify(answer)}) });
+                    }
+                    if(msg.text.startsWith('RTC_ANSWER:') && rtcPeer.signalingState !== 'stable') {
+                        await rtcPeer.setRemoteDescription(new RTCSessionDescription(JSON.parse(msg.text.replace('RTC_ANSWER:', ''))));
+                    }
                 });
-                container.scrollTop = container.scrollHeight;
-            } catch(e) {}
-        }
-        async function sendMessage() {
-            if(!currentRoom) return;
-            const input = document.getElementById('chatInput'); const text = input.value.trim(); if(!text) return;
-            input.value = ""; await fetch('/api/chat/' + currentRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: currentUser, text: text}) }); fetchMessages();
+            }, 2000);
         }
 
-        // --- Games Logic ---
-        let grid2048 = [], score2048 = 0;
-        function init2048() { grid2048 = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]; score2048 = 0; addTile2048(); addTile2048(); draw2048(); }
-        function addTile2048() {
-            let empty = []; for(let r=0; r<4; r++) for(let c=0; c<4; c++) if(grid2048[r][c] === 0) empty.push({r,c});
-            if(empty.length === 0) return; let spot = empty[Math.floor(Math.random() * empty.length)]; grid2048[spot.r][spot.c] = Math.random() < 0.9 ? 2 : 4;
-        }
-        function draw2048() {
-            const ctx = document.getElementById('canvas2048').getContext('2d'); ctx.fillStyle = "#bbada0"; ctx.fillRect(0,0,320,320);
-            const colors = {0:"#cdc1b4", 2:"#eee4da", 4:"#ede0c8", 8:"#f2b179", 16:"#f59563", 32:"#f67c5f", 64:"#f65e3b", 128:"#edcf72", 256:"#edcc61", 512:"#edc850", 1024:"#edc53f", 2048:"#edc22e"};
-            for(let r=0; r<4; r++) for(let c=0; c<4; c++) {
-                let val = grid2048[r][c]; ctx.fillStyle = colors[val] || "#3c3a32"; ctx.fillRect(c*80+10, r*80+10, 60, 60);
-                if(val !== 0) { ctx.fillStyle = val <= 4 ? "#776e65" : "#f9f6f2"; ctx.font = val > 100 ? "bold 24px sans-serif" : "bold 32px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(val, c*80+40, r*80+40); }
-            }
-        }
-        window.addEventListener('keydown', e => {
-            if(document.getElementById('game2048').style.display === 'none') return;
-            let oldGrid = JSON.stringify(grid2048); let key = e.key;
-            if(key === 'ArrowUp') grid2048 = rotate2048(grid2048, 3); else if(key === 'ArrowDown') grid2048 = rotate2048(grid2048, 1); else if(key === 'ArrowLeft') grid2048 = rotate2048(grid2048, 2); else if(key === 'ArrowRight') grid2048 = rotate2048(grid2048, 0); else return;
-            for(let r=0; r<4; r++) { let row = grid2048[r].filter(v => v); for(let i=0; i<row.length-1; i++) if(row[i] === row[i+1]) { row[i]*=2; row.splice(i+1,1); } while(row.length < 4) row.push(0); grid2048[r] = row; }
-            if(key === 'ArrowUp') grid2048 = rotate2048(grid2048, 1); else if(key === 'ArrowDown') grid2048 = rotate2048(grid2048, 3); else if(key === 'ArrowLeft') grid2048 = rotate2048(grid2048, 0); else if(key === 'ArrowRight') grid2048 = rotate2048(grid2048, 2);
-            if(JSON.stringify(grid2048) !== oldGrid) { addTile2048(); draw2048(); }
-        });
-        function rotate2048(g, times) { let res = g; for(let t=0; t<times; t++) { let newG = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]; for(let r=0; r<4; r++) for(let c=0; c<4; c++) newG[c][3-r] = res[r][c]; res = newG; } return res; }
+        async function setupRTC() {
+            rtcPeer = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+            
+            rtcPeer.onicecandidate = async (event) => {
+                if (event.candidate) {
+                    await fetch('/api/chat/' + rtcRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: "RTC_SYSTEM", text: 'RTC_ICE:' + JSON.stringify(event.candidate)}) });
+                }
+            };
 
-        let snake, dir, food, snakeInterval;
-        function initSnake() { snake = [{x:10, y:10}]; dir = {x:0, y:0}; food = {x:15, y:15}; if(snakeInterval) clearInterval(snakeInterval); snakeInterval = setInterval(moveSnake, 100); }
-        function moveSnake() {
-            if(dir.x === 0 && dir.y === 0) return; let head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
-            if(head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) return initSnake();
-            for(let i=0; i<snake.length; i++) if(snake[i].x === head.x && snake[i].y === head.y) return initSnake();
-            snake.unshift(head); if(head.x === food.x && head.y === food.y) food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)}; else snake.pop(); drawSnake();
-        }
-        function drawSnake() {
-            const ctx = document.getElementById('canvasSnake').getContext('2d'); ctx.fillStyle = "#111"; ctx.fillRect(0,0,300,300); ctx.fillStyle = "#e74c3c"; ctx.fillRect(food.x*15, food.y*15, 15, 15); ctx.fillStyle = "#2ecc71"; snake.forEach(s => ctx.fillRect(s.x*15, s.y*15, 14, 14));
-        }
-        window.addEventListener('keydown', e => {
-            if(document.getElementById('gameSnake').style.display === 'none') return;
-            if(e.key === 'ArrowUp' && dir.y === 0) dir = {x:0, y:-1}; if(e.key === 'ArrowDown' && dir.y === 0) dir = {x:0, y:1}; if(e.key === 'ArrowLeft' && dir.x === 0) dir = {x:-1, y:0}; if(e.key === 'ArrowRight' && dir.x === 0) dir = {x:1, y:0};
-        });
+            rtcPeer.ondatachannel = (event) => {
+                rtcChannel = event.channel;
+                setupChannel();
+            };
 
-        let flappyCanvas, flappyCtx, bird, pipes, flappyScore, flappyLoop, flappyGravity;
-        function initFlappy() {
-            flappyCanvas = document.getElementById('canvasFlappy'); flappyCtx = flappyCanvas.getContext('2d'); bird = {x: 50, y: 200, vy: 0, size: 15}; pipes = []; flappyScore = 0; flappyGravity = 0.25;
-            if(flappyLoop) clearInterval(flappyLoop); flappyLoop = setInterval(drawFlappy, 1000/60);
-        }
-        function drawFlappy() {
-            flappyCtx.fillStyle = "#70c5ce"; flappyCtx.fillRect(0,0,300,400); bird.vy += flappyGravity; bird.y += bird.vy; flappyCtx.fillStyle = "#f1c40f"; flappyCtx.fillRect(bird.x, bird.y, bird.size, bird.size);
-            if(pipes.length === 0 || pipes[pipes.length-1].x < 150) pipes.push({x: 300, top: Math.random()*200 + 50, bottom: Math.random()*100 + 100});
-            for(let i=pipes.length-1; i>=0; i--) {
-                let p = pipes[i]; p.x -= 2; flappyCtx.fillStyle = "#2ecc71"; flappyCtx.fillRect(p.x, 0, 50, p.top); flappyCtx.fillRect(p.x, 400 - p.bottom, 50, p.bottom);
-                if(bird.x + bird.size > p.x && bird.x < p.x + 50 && (bird.y < p.top || bird.y + bird.size > 400 - p.bottom)) { clearInterval(flappyLoop); alert("Game Over! Score: " + flappyScore); }
-                if(p.x === 48) flappyScore++; if(p.x < -50) pipes.splice(i, 1);
-            }
-            flappyCtx.fillStyle = "#fff"; flappyCtx.font = "20px sans-serif"; flappyCtx.fillText(flappyScore, 10, 30);
-            if(bird.y > 400 || bird.y < 0) { clearInterval(flappyLoop); alert("Game Over! Score: " + flappyScore); }
-        }
-        document.getElementById('canvasFlappy').addEventListener('click', () => { if(flappyLoop) bird.vy = -5; });
-        window.addEventListener('keydown', e => { if(e.key === ' ' && document.getElementById('gameFlappy').style.display !== 'none') bird.vy = -5; });
+            rtcChannel = rtcPeer.createDataChannel("fileTransfer");
+            setupChannel();
 
-        window.onload = () => { openApp('proxyApp'); init2048(); initSnake(); initFlappy(); renderChatList(); };
+            const offer = await rtcPeer.createOffer();
+            await rtcPeer.setLocalDescription(offer);
+            await fetch('/api/chat/' + rtcRoom, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: "RTC_SYSTEM", text: 'RTC_OFFER:' + JSON.stringify(offer)}) });
+        }
+
+        function setupChannel() {
+            rtcChannel.binaryType = 'arraybuffer';
+            rtcChannel.onopen = () => {
+                document.getElementById('airdropStatus').innerText = "Connected! Ready to send files.";
+                document.getElementById('dropZone').style.borderColor = "var(--primary)";
+            };
+            rtcChannel.onmessage = (event) => {
+                if (typeof event.data === 'string') {
+                    const meta = JSON.parse(event.data);
+                    if (meta.type === 'start') {
+                        incomingFile = meta;
+                        receivedBuffers = [];
+                        receivedSize = 0;
+                        document.getElementById('airdropProgress').style.display = 'block';
+                        document.getElementById('airdropStatus').innerText = "Receiving: " + meta.name;
+                    } else if (meta.type === 'end') {
+                        const blob = new Blob(receivedBuffers);
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = incomingFile.name;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        document.getElementById('airdropProgress').style.display = 'none';
+                        document.getElementById('airdropStatus').innerText = "File received successfully!";
+                        document.getElementById('airdropProgressBar').style.width = '0%';
+                    }
+                } else {
+                    receivedBuffers.push(event.data);
+                    receivedSize += event.data.byteLength;
+                    const percent = (receivedSize / incomingFile.size) * 100;
+                    document.getElementById('airdropProgressBar').style.width = percent + '%';
+                }
+            };
+        }
+
+        function sendFile(file) {
+            if(!file || !rtcChannel || rtcChannel.readyState !== 'open') return alert("Waiting for peer to connect!");
+            document.getElementById('airdropProgress').style.display = 'block';
+            document.getElementById('airdropProgressBar').style.width = '0%';
+            document.getElementById('airdropStatus').innerText = "Sending: " + file.name;
+
+            rtcChannel.send(JSON.stringify({ type: 'start', name: file.name, size: file.size, mime: file.type }));
+            
+            let offset = 0;
+            const chunkSize = 16384;
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                rtcChannel.send(e.target.result);
+                offset += e.target.result.byteLength;
+                const percent = (offset / file.size) * 100;
+                document.getElementById('airdropProgressBar').style.width = percent + '%';
+
+                if (offset < file.size) {
+                    readSlice(offset);
+                } else {
+                    rtcChannel.send(JSON.stringify({ type: 'end' }));
+                    document.getElementById('airdropStatus').innerText = "File sent successfully!";
+                    setTimeout(() => {
+                        document.getElementById('airdropProgress').style.display = 'none';
+                        document.getElementById('airdropStatus').innerText = "Connected! Ready to send files.";
+                    }, 2000);
+                }
+            };
+
+            const readSlice = (o) => {
+                const slice = file.slice(offset, o + chunkSize);
+                reader.readAsArrayBuffer(slice);
+            };
+            readSlice(0);
+        }
+
+        function leaveAirdrop() {
+            if(rtcPeer) { rtcPeer.close(); rtcPeer = null; }
+            if(airdropPollInterval) { clearInterval(airdropPollInterval); airdropPollInterval = null; }
+            document.getElementById('airdropJoin').style.display = 'flex';
+            document.getElementById('airdropActive').style.display = 'none';
+            document.getElementById('airdropRoomCode').value = '';
+            document.getElementById('airdropProgress').style.display = 'none';
+            document.getElementById('airdropStatus').innerText = "Waiting for peer to connect...";
+        }
     </script>
 </body>
 </html>

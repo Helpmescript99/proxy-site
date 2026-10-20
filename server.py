@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import re
 import time
-import json
+import yt_dlp
 from urllib.parse import urljoin, quote, unquote
 import requests
-from flask import Flask, request, Response, jsonify
+from flask import Flask, request, Response, jsonify, stream_with_context
 
 app = Flask(__name__)
 
@@ -66,50 +66,64 @@ def rewrite_css_fast(css, base):
         return f'url("{PROXY_PREFIX}{quote(absolute, safe="")}")'
     return CSS_REGEX.sub(repl_css, css)
 
-@app.route("/api/search_yt")
-def search_yt():
-    q = request.args.get("q", "")
-    if not q: return jsonify([])
+@app.route("/api/extract")
+def extract_media():
+    url = request.args.get("url")
+    if not url: return jsonify({"error": "No URL provided"})
     
-    # Try multiple instances in case one is down
-    apis = [
-        f"https://pipedapi.kavin.rocks/search?q={quote(q)}&filter=videos",
-        f"https://pipedapi.adminforge.de/search?q={quote(q)}&filter=videos",
-        f"https://invidious.privacyredirect.com/api/v1/search?q={quote(q)}&type=video"
-    ]
-    
-    for api in apis:
-        try:
-            r = requests.get(api, timeout=5)
-            data = r.json()
-            results = []
-            # Piped API format
-            if "items" in data:
-                for v in data["items"][:12]:
-                    if v.get("type") == "stream":
-                        results.append({"title": v["title"], "id": v["url"].split("?v=")[1], "author": v["uploaderName"], "thumb": v["thumbnail"]})
-                if results: return jsonify(results)
-            # Invidious API format
-            elif isinstance(data, list):
-                for v in data[:12]:
-                    results.append({"title": v["title"], "id": v["videoId"], "author": v["author"], "thumb": v["videoThumbnails"][0]["url"]})
-                if results: return jsonify(results)
-        except Exception:
-            continue
-            
-    return jsonify({"error": "All search APIs are currently down. Please try again later."})
-
-@app.route("/api/tt")
-def get_tt():
-    url = request.args.get("url", "")
-    if not url: return jsonify({"error": "No URL"})
+    ydl_opts = {
+        'format': 'best[ext=mp4]/best',
+        'quiet': True,
+        'no_warnings': True,
+        'nocheckcertificate': True,
+    }
     try:
-        r = requests.get(f"https://www.tikwm.com/api/?url={quote(url)}", timeout=10)
-        data = r.json()
-        if data.get("code") == 0:
-            return jsonify({"video": data["data"]["play"], "title": data["data"]["title"], "author": data["data"]["author"]["nickname"]})
-        return jsonify({"error": "Failed to extract"})
-    except Exception as e: return jsonify({"error": str(e)})
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            
+            # Find the best direct URL
+            direct_url = info.get('url')
+            if not direct_url and 'formats' in info:
+                # Fallback to finding any valid mp4 URL
+                for f in reversed(info['formats']):
+                    if f.get('url') and f.get('ext') == 'mp4':
+                        direct_url = f['url']
+                        break
+                if not direct_url:
+                    direct_url = info['formats'][-1].get('url')
+
+            if direct_url:
+                return jsonify({
+                    "title": info.get("title", "Media"),
+                    "url": direct_url,
+                    "thumbnail": info.get("thumbnail", ""),
+                    "ext": info.get("ext", "mp4"),
+                    "uploader": info.get("uploader", "Unknown")
+                })
+            return jsonify({"error": "Could not find a direct video link."})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+@app.route("/api/download")
+def download_file():
+    url = request.args.get("url")
+    if not url: return "No URL", 400
+    try:
+        req = session.get(url, stream=True, timeout=15)
+        filename = "downloaded_file"
+        cd = req.headers.get('content-disposition')
+        if cd and 'filename=' in cd:
+            filename = cd.split('filename=')[1].strip('"\'')
+        else:
+            filename = url.split('/')[-1].split('?')[0] or "downloaded_file"
+            
+        return Response(
+            stream_with_context(req.iter_content(chunk_size=8192)),
+            content_type=req.headers.get('content-type', 'application/octet-stream'),
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    except Exception as e:
+        return str(e), 500
 
 @app.route("/api/chat/<room>", methods=["GET", "POST"])
 def chat_api(room):
@@ -129,35 +143,28 @@ def index():
 def proxy(encoded):
     target = unquote(encoded)
     if not target.startswith(("http://", "https://")): return Response("bad url", status=400)
-
     if request.method == "GET" and target in CACHE:
         ts, body, ctype = CACHE[target]
         if time.time() - ts < CACHE_TTL: return Response(body, mimetype=ctype)
-
     fwd_headers = {k: v for k, v in request.headers.items() if k.lower() not in ("host", "referer", "origin", "cookie", "accept-encoding", "content-length", "connection")}
     ref = request.headers.get("Referer", "")
     if ref.startswith(PROXY_PREFIX): fwd_headers["Referer"] = unquote(ref[len(PROXY_PREFIX):])
-    
     data = None
     if request.method in ("POST", "PUT", "PATCH"):
         data = request.get_data()
         fwd_headers["Content-Type"] = request.headers.get("Content-Type", "application/x-www-form-urlencoded")
-
     try:
         upstream = session.request(request.method, target, headers=fwd_headers, data=data, timeout=TIMEOUT, allow_redirects=True, stream=True)
     except requests.RequestException as e: return Response(f"Error: {e}", status=502)
-
     ctype = upstream.headers.get("Content-Type", "").lower()
     out_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in ("content-security-policy", "x-frame-options", "strict-transport-security", "content-encoding", "content-length")}
     if "Location" in upstream.headers: out_headers["Location"] = PROXY_PREFIX + quote(urljoin(target, upstream.headers["Location"]), safe="")
-
     body_bytes = b""
     try:
         for chunk in upstream.iter_content(chunk_size=8192):
             body_bytes += chunk
             if len(body_bytes) > MAX_BYTES: break
     except Exception: pass
-
     if "text/html" in ctype:
         raw = rewrite_fast(body_bytes.decode(upstream.encoding or "utf-8", "replace"), upstream.url)
         if request.method == "GET": CACHE[target] = (time.time(), raw, "text/html")
@@ -166,7 +173,6 @@ def proxy(encoded):
         raw = rewrite_css_fast(body_bytes.decode(upstream.encoding or "utf-8", "replace"), upstream.url)
         if request.method == "GET": CACHE[target] = (time.time(), raw, "text/css")
         return Response(raw, status=upstream.status_code, headers=out_headers, mimetype="text/css")
-        
     if request.method == "GET": CACHE[target] = (time.time(), body_bytes, ctype)
     return Response(body_bytes, status=upstream.status_code, headers=out_headers, mimetype=ctype or None)
 
