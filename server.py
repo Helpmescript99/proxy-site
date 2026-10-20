@@ -71,20 +71,42 @@ def extract_media():
     url = request.args.get("url")
     if not url: return jsonify({"error": "No URL provided"})
     
+    # --- TIKTOK SPECIFIC FALLBACK ---
+    if "tiktok.com" in url:
+        try:
+            r = requests.get(f"https://www.tikwm.com/api/?url={quote(url)}", timeout=10)
+            data = r.json()
+            if data.get("code") == 0:
+                return jsonify({
+                    "title": data["data"]["title"] or "TikTok Video",
+                    "url": data["data"]["play"],
+                    "thumbnail": data["data"]["cover"],
+                    "ext": "mp4",
+                    "uploader": data["data"]["author"]["nickname"]
+                })
+            else:
+                # If tikwm fails, pass to the error handler below to try yt-dlp
+                pass
+        except Exception:
+            pass # Fall through to yt-dlp
+
+    # --- YT-DLP (YouTube, Instagram, Twitter, etc.) ---
     ydl_opts = {
         'format': 'best[ext=mp4]/best',
         'quiet': True,
         'no_warnings': True,
         'nocheckcertificate': True,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+        }
     }
+    
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             
-            # Find the best direct URL
             direct_url = info.get('url')
             if not direct_url and 'formats' in info:
-                # Fallback to finding any valid mp4 URL
                 for f in reversed(info['formats']):
                     if f.get('url') and f.get('ext') == 'mp4':
                         direct_url = f['url']
