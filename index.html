@@ -6,56 +6,158 @@
     <title>Minxy Utility</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        
         :root {
-            --bg: #0f1015; --surface: #1a1b22; --surface-light: #252731; --primary: #00a884;
-            --primary-hover: #008f6f; --blue: #0078d4; --blue-hover: #106ebe; --text: #ffffff;
-            --text-muted: #9ca3af; --border: #2d303e;
+            --bg: #0f1015;
+            --surface: #1a1b22;
+            --surface-light: #252731;
+            --primary: #00a884;
+            --primary-hover: #008f6f;
+            --blue: #0078d4;
+            --blue-hover: #106ebe;
+            --text: #ffffff;
+            --text-muted: #9ca3af;
+            --border: #2d303e;
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; background-image: radial-gradient(circle at top right, rgba(0, 168, 132, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(0, 120, 212, 0.15), transparent 40%); }
-        header { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; background: rgba(15, 16, 21, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+            background-image: radial-gradient(circle at top right, rgba(0, 168, 132, 0.15), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(0, 120, 212, 0.15), transparent 40%);
+        }
+
+        header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 20px 40px; 
+            background: rgba(15, 16, 21, 0.8); 
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+        }
         .logo { font-size: 24px; font-weight: 800; background: linear-gradient(90deg, #00a884, #0078d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
         .tabs { display: flex; gap: 10px; background: var(--surface); padding: 5px; border-radius: 12px; border: 1px solid var(--border); }
         .tab-btn { padding: 10px 24px; border: none; background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: 0.2s; }
         .tab-btn:hover { color: var(--text); }
         .tab-btn.active { background: var(--surface-light); color: var(--text); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; overflow-y: auto; }
-        .app-section { display: none; width: 100%; max-width: 800px; animation: fadeIn 0.3s ease-out; }
-        .app-section.active { display: flex; flex-direction: column; gap: 20px; }
+
+        main { flex: 1; display: flex; overflow: hidden; position: relative; }
+        .app-section { display: none; width: 100%; height: 100%; overflow-y: auto; padding: 40px; }
+        .app-section.active { display: flex; flex-direction: column; align-items: center; }
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .input-group { display: flex; gap: 12px; width: 100%; }
+
+        /* --- Downloader Layout --- */
+        .downloader-wrapper {
+            display: flex;
+            width: 100%;
+            max-width: 1100px;
+            height: 100%;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .extractor-main {
+            flex: 1;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .top-header { text-align: center; margin-bottom: 10px; }
+        .top-header h1 { font-size: 32px; margin-bottom: 10px; }
+        .top-header p { color: var(--text-muted); }
+
+        .input-group { display: flex; gap: 10px; width: 100%; }
         .input-field { flex: 1; padding: 18px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; color: var(--text); font-size: 16px; outline: none; transition: 0.2s; }
         .input-field:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.2); }
-        .btn { padding: 18px 32px; border: none; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+        
+        .btn { padding: 18px 24px; border: none; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
         .btn-blue { background: var(--blue); color: white; }
         .btn-blue:hover { background: var(--blue-hover); transform: translateY(-2px); }
         .btn-green { background: var(--primary); color: white; }
         .btn-green:hover { background: var(--primary-hover); transform: translateY(-2px); }
-        .btn-red { background: #e74c3c; color: white; }
-        .btn-red:hover { background: #c0392b; }
-        .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: none; flex-direction: column; gap: 16px; margin-top: 20px; }
+        
+        .btn-icon { padding: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; cursor: pointer; color: var(--text-muted); transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .btn-icon:hover { background: var(--surface-light); color: var(--text); }
+
+        .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: none; flex-direction: column; gap: 16px; }
         .result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
         .result-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
         .result-author { color: var(--text-muted); font-size: 14px; }
         .video-preview { width: 100%; max-height: 400px; border-radius: 12px; background: #000; object-fit: contain; }
+
+        .error-box { display: none; color: #ff6b6b; background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(231, 76, 60, 0.3); text-align: center; font-size: 14px; line-height: 1.5; }
+
+        /* --- Alt Sites Side Panel --- */
+        .alt-sites-panel {
+            width: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px solid transparent;
+            display: flex;
+            flex-direction: column;
+        }
+        .alt-sites-panel.open {
+            width: 320px;
+            opacity: 1;
+            border-color: var(--border);
+            padding: 15px;
+        }
+        .panel-header { font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .alt-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .alt-item { display: flex; align-items: center; gap: 12px; padding: 10px; background: var(--bg); border-radius: 8px; text-decoration: none; color: var(--text); border: 1px solid var(--border); transition: 0.2s; }
+        .alt-item:hover { background: var(--surface-light); border-color: var(--primary); }
+        .alt-item img { width: 24px; height: 24px; border-radius: 4px; }
+        .alt-info { display: flex; flex-direction: column; }
+        .alt-name { font-size: 14px; font-weight: 600; }
+        .alt-desc { font-size: 11px; color: var(--text-muted); }
+
+        /* --- AirDrop Styles --- */
+        .airdrop-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 800px; animation: fadeIn 0.3s ease-out; }
         .airdrop-join { display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
         .airdrop-join h2 { font-size: 28px; }
         .airdrop-join p { color: var(--text-muted); }
         .room-input { text-align: center; text-transform: uppercase; letter-spacing: 4px; font-size: 24px; font-weight: 800; }
+        
         .drop-zone { width: 100%; height: 250px; border: 2px dashed var(--border); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; color: var(--text-muted); cursor: pointer; transition: 0.2s; background: var(--surface); }
         .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: rgba(0, 168, 132, 0.05); color: var(--text); }
         .drop-zone img { width: 60px; opacity: 0.8; }
+        
         .progress-container { width: 100%; height: 8px; background: var(--surface-light); border-radius: 4px; overflow: hidden; display: none; margin-top: 10px; }
         .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.1s; }
         .status-text { text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 10px; }
-        .room-header { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border); }
+        
+        .room-header { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border); width: 100%; }
         .room-code { font-size: 20px; font-weight: 800; color: var(--primary); letter-spacing: 2px; }
+        .btn-red { background: #e74c3c; color: white; padding: 10px 20px; font-size: 14px; }
+        .btn-red:hover { background: #c0392b; }
+
         .spinner { display: none; width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 768px) { .input-group { flex-direction: column; } header { padding: 15px 20px; flex-direction: column; gap: 15px; } .tabs { width: 100%; justify-content: center; } .tab-btn { flex: 1; } }
+
+        @media (max-width: 900px) {
+            .downloader-wrapper { flex-direction: column; }
+            .alt-sites-panel.open { width: 100%; }
+        }
     </style>
 </head>
 <body>
+
     <header>
         <div class="logo">Minxy Utility</div>
         <div class="tabs">
@@ -63,65 +165,104 @@
             <button class="tab-btn" onclick="switchTab('airdrop')" id="tab-btn-airdrop">AirDrop</button>
         </div>
     </header>
+
     <main>
+        <!-- Downloader Tab -->
         <div id="section-downloader" class="app-section active">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h1 style="font-size: 32px; margin-bottom: 10px;">Download Anything.</h1>
-                <p style="color: var(--text-muted);">Paste a link from YouTube, TikTok, Instagram, Twitter, or 1000+ other sites.</p>
-            </div>
-            <div class="input-group">
-                <input type="text" id="mediaUrl" class="input-field" placeholder="https://www.youtube.com/watch?v=..." onkeypress="if(event.key==='Enter') extractMedia()">
-                <button class="btn btn-blue" onclick="extractMedia()">
-                    <div id="extractSpinner" class="spinner"></div>
-                    <span id="extractBtnText">Extract</span>
-                </button>
-            </div>
-            <div id="errorBox" style="display: none; color: #ff6b6b; background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(231, 76, 60, 0.3); text-align: center;"></div>
-            <div id="mediaResult" class="result-card">
-                <div class="result-header">
-                    <div>
-                        <div class="result-title" id="resTitle">Video Title</div>
-                        <div class="result-author" id="resAuthor">@uploader</div>
+            <div class="downloader-wrapper">
+                
+                <!-- Main Extractor Area -->
+                <div class="extractor-main">
+                    <div class="top-header">
+                        <h1>Download Anything.</h1>
+                        <p>Paste a link from YouTube, TikTok, Instagram, Twitter, or 1000+ other sites.</p>
                     </div>
-                    <a id="resDownloadBtn" class="btn btn-green" href="#" download="video.mp4">Save File</a>
+
+                    <div class="input-group">
+                        <input type="text" id="mediaUrl" class="input-field" placeholder="https://www.youtube.com/watch?v=..." onkeypress="if(event.key==='Enter') extractMedia()">
+                        <button class="btn btn-blue" onclick="extractMedia()">
+                            <div id="extractSpinner" class="spinner"></div>
+                            <span id="extractBtnText">Extract</span>
+                        </button>
+                        <!-- Toggle Icon Button -->
+                        <button class="btn-icon" onclick="toggleAltSites()" title="Toggle Alternative Sites">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="9" y1="3" x2="9" y2="21"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div id="errorBox" class="error-box">
+                        <!-- Error text goes here -->
+                    </div>
+
+                    <div id="mediaResult" class="result-card">
+                        <div class="result-header">
+                            <div>
+                                <div class="result-title" id="resTitle">Video Title</div>
+                                <div class="result-author" id="resAuthor">@uploader</div>
+                            </div>
+                            <a id="resDownloadBtn" class="btn btn-green" href="#" download="video.mp4">Save File</a>
+                        </div>
+                        <video id="resVideo" class="video-preview" controls style="display:none;"></video>
+                    </div>
                 </div>
-                <video id="resVideo" class="video-preview" controls style="display:none;"></video>
+
+                <!-- Collapsible Side Panel -->
+                <div id="altSitesPanel" class="alt-sites-panel">
+                    <div class="panel-header">Alternative Sites</div>
+                    <div class="alt-list" id="altSitesList">
+                        <!-- Links injected via JS -->
+                    </div>
+                </div>
+
             </div>
         </div>
+
+        <!-- AirDrop Tab -->
         <div id="section-airdrop" class="app-section">
-            <div id="airdropJoin" class="airdrop-join">
-                <div style="background: var(--surface); padding: 20px; border-radius: 50%; border: 1px solid var(--border);">
-                    <img src="https://img.icons8.com/color/96/000000/airdrop.png" style="width: 64px;">
-                </div>
-                <h2>Local File Share</h2>
-                <p>Create or join a room to send files directly to another device.<br>No servers, no limits.</p>
-                <div class="input-group" style="max-width: 400px; margin-top: 20px;">
-                    <input type="text" id="airdropRoomCode" class="input-field room-input" placeholder="ABC123" maxlength="8">
-                    <button class="btn btn-green" onclick="joinAirdrop()">Connect</button>
-                </div>
-            </div>
-            <div id="airdropActive" style="display: none; flex-direction: column; gap: 20px;">
-                <div class="room-header">
-                    <div>
-                        <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Connected to Room</div>
-                        <div class="room-code" id="airdropRoomDisplay">ROOM</div>
+            <div class="airdrop-wrapper">
+                <div id="airdropJoin" class="airdrop-join">
+                    <div style="background: var(--surface); padding: 20px; border-radius: 50%; border: 1px solid var(--border);">
+                        <img src="https://img.icons8.com/color/96/000000/airdrop.png" style="width: 64px;">
                     </div>
-                    <button class="btn btn-red" style="padding: 10px 20px; font-size: 14px;" onclick="leaveAirdrop()">Disconnect</button>
+                    <h2>Local File Share</h2>
+                    <p>Create or join a room to send files directly to another device.<br>No servers, no limits.</p>
+                    
+                    <div class="input-group" style="max-width: 400px; margin-top: 20px;">
+                        <input type="text" id="airdropRoomCode" class="input-field room-input" placeholder="ABC123" maxlength="8">
+                        <button class="btn btn-green" onclick="joinAirdrop()">Connect</button>
+                    </div>
                 </div>
-                <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
-                    <img src="https://img.icons8.com/color/96/000000/upload.png">
-                    <h3>Click or Drag File Here</h3>
-                    <p style="font-size: 14px;">Send photos, videos, documents, anything.</p>
-                    <input type="file" id="fileInput" style="display: none;" onchange="sendFile(this.files[0])">
+
+                <div id="airdropActive" style="display: none; flex-direction: column; gap: 20px; width: 100%; align-items: center;">
+                    <div class="room-header">
+                        <div>
+                            <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Connected to Room</div>
+                            <div class="room-code" id="airdropRoomDisplay">ROOM</div>
+                        </div>
+                        <button class="btn btn-red" onclick="leaveAirdrop()">Disconnect</button>
+                    </div>
+
+                    <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
+                        <img src="https://img.icons8.com/color/96/000000/upload.png">
+                        <h3>Click or Drag File Here</h3>
+                        <p style="font-size: 14px;">Send photos, videos, documents, anything.</p>
+                        <input type="file" id="fileInput" style="display: none;" onchange="sendFile(this.files[0])">
+                    </div>
+
+                    <div class="progress-container" id="airdropProgress">
+                        <div class="progress-bar" id="airdropProgressBar"></div>
+                    </div>
+                    <div class="status-text" id="airdropStatus">Waiting for peer to connect...</div>
                 </div>
-                <div class="progress-container" id="airdropProgress">
-                    <div class="progress-bar" id="airdropProgressBar"></div>
-                </div>
-                <div class="status-text" id="airdropStatus">Waiting for peer to connect...</div>
             </div>
         </div>
     </main>
+
     <script>
+        // --- Tab Switching ---
         function switchTab(tabId) {
             document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -129,6 +270,41 @@
             document.getElementById(`tab-btn-${tabId}`).classList.add('active');
         }
 
+        // --- Alt Sites Logic ---
+        const altSites = [
+            { name: "Cobalt.tools", url: "https://cobalt.tools/", desc: "Best all-in-one (YT, IG, TT)", icon: "https://www.google.com/s2/favicons?domain=cobalt.tools&sz=64" },
+            { name: "YTSave", url: "https://ytsave.to/en2/", desc: "High-speed YouTube saver", icon: "https://www.google.com/s2/favicons?domain=ytsave.to&sz=64" },
+            { name: "Y2Mate", url: "https://y2mate.nu/en-gfim/", desc: "Classic YouTube downloader", icon: "https://www.google.com/s2/favicons?domain=y2mate.nu&sz=64" },
+            { name: "SSYouTube", url: "https://ssyoutube.com/", desc: "Add 'ss' to any YT link", icon: "https://www.google.com/s2/favicons?domain=ssyoutube.com&sz=64" },
+            { name: "SaveFrom", url: "https://en.savefrom.net/", desc: "Old reliable, multi-platform", icon: "https://www.google.com/s2/favicons?domain=savefrom.net&sz=64" },
+            { name: "SssTik", url: "https://ssstik.io/", desc: "TikTok no watermark", icon: "https://www.google.com/s2/favicons?domain=ssstik.io&sz=64" },
+            { name: "SnapSave", url: "https://snapsave.io/", desc: "Great for TikTok & FB", icon: "https://www.google.com/s2/favicons?domain=snapsave.io&sz=64" },
+            { name: "SnapInstagram", url: "https://snapinstagram.com/", desc: "IG Reels & Photos", icon: "https://www.google.com/s2/favicons?domain=snapinstagram.com&sz=64" }
+        ];
+
+        function renderAltSites() {
+            const list = document.getElementById('altSitesList');
+            altSites.forEach(site => {
+                const a = document.createElement('a');
+                a.className = 'alt-item';
+                a.href = site.url;
+                a.target = '_blank';
+                a.innerHTML = `
+                    <img src="${site.icon}" onerror="this.src='https://img.icons8.com/color/48/000000/internet.png'">
+                    <div class="alt-info">
+                        <span class="alt-name">${site.name}</span>
+                        <span class="alt-desc">${site.desc}</span>
+                    </div>
+                `;
+                list.appendChild(a);
+            });
+        }
+
+        function toggleAltSites() {
+            document.getElementById('altSitesPanel').classList.toggle('open');
+        }
+
+        // --- Extractor Logic ---
         async function extractMedia() {
             const url = document.getElementById('mediaUrl').value.trim();
             if(!url) return;
@@ -137,37 +313,47 @@
             const btnText = document.getElementById('extractBtnText');
             const errorBox = document.getElementById('errorBox');
             const resultCard = document.getElementById('mediaResult');
+            
             btn.disabled = true; spinner.style.display = 'block'; btnText.innerText = 'Extracting...';
             errorBox.style.display = 'none'; resultCard.style.display = 'none';
+            
             try {
                 const res = await fetch('/api/extract?url=' + encodeURIComponent(url));
                 const data = await res.json();
+                
                 if(data.error) {
-                    errorBox.innerText = data.error; errorBox.style.display = 'block';
+                    errorBox.innerHTML = `<strong>Extraction Failed:</strong> ${data.error}<br><br>Try opening the <b>Alternative Sites</b> panel (icon next to Extract) and pasting your link there.`;
+                    errorBox.style.display = 'block';
                 } else {
                     const safeTitle = (data.title || "video").replace(/[^a-z0-9]/gi, '_').toLowerCase();
                     const fileExt = data.ext || "mp4";
                     document.getElementById('resTitle').innerText = data.title || "Media File";
                     document.getElementById('resAuthor').innerText = data.uploader ? "@" + data.uploader : "Unknown Source";
+                    
                     const dlBtn = document.getElementById('resDownloadBtn');
                     dlBtn.href = '/api/download?url=' + encodeURIComponent(data.url) + '&filename=' + safeTitle + '.' + fileExt;
-                    dlBtn.setAttribute('download', safeTitle + '.' + fileExt);
+                    
                     const video = document.getElementById('resVideo');
                     if (fileExt === 'mp4' || fileExt === 'webm' || data.url.includes('.mp4')) {
                         video.src = data.url; video.style.display = 'block';
                     } else { video.style.display = 'none'; }
                     resultCard.style.display = 'flex';
                 }
-            } catch(e) { errorBox.innerText = "Failed to connect to server."; errorBox.style.display = 'block'; }
-            finally { btn.disabled = false; spinner.style.display = 'none'; btnText.innerText = 'Extract'; }
+            } catch(e) {
+                errorBox.innerHTML = `<strong>Connection Error:</strong> Failed to reach the server.<br><br>Try using the <b>Alternative Sites</b> panel!`;
+                errorBox.style.display = 'block';
+            } finally {
+                btn.disabled = false; spinner.style.display = 'none'; btnText.innerText = 'Extract';
+            }
         }
 
+        // --- AirDrop WebRTC Logic ---
         let rtcPeer = null, rtcChannel = null, rtcRoom = "";
         let receivedBuffers = [], receivedSize = 0, incomingFile = null;
         let airdropPollInterval = null;
         const rtcMyId = "RTC_" + Math.random().toString(36).substring(2, 9);
         let sentOffer = false;
-        let pendingIceCandidates = []; // Store ICE candidates until remote description is set
+        let pendingIceCandidates = [];
 
         async function joinAirdrop() {
             rtcRoom = document.getElementById('airdropRoomCode').value.trim().toUpperCase();
@@ -201,7 +387,6 @@
                             await rtcPeer.setLocalDescription(answer);
                             await sendSignal('RTC_ANSWER:' + JSON.stringify(answer));
                         }
-                        // Process any queued ICE candidates
                         for (const cand of pendingIceCandidates) {
                             await rtcPeer.addIceCandidate(new RTCIceCandidate(cand)).catch(e => console.log(e));
                         }
@@ -219,7 +404,7 @@
                         if (rtcPeer.remoteDescription) {
                             await rtcPeer.addIceCandidate(new RTCIceCandidate(cand)).catch(e => console.log(e));
                         } else {
-                            pendingIceCandidates.push(cand); // Queue if remote desc not ready
+                            pendingIceCandidates.push(cand);
                         }
                     }
                 }
@@ -234,12 +419,7 @@
             rtcPeer = new RTCPeerConnection({ 
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
-                    // PUBLIC TURN SERVER FOR STRICT NATs
-                    { 
-                        urls: 'turn:openrelay.metered.ca:80', 
-                        username: 'openrelayproject', 
-                        credential: 'openrelayproject' 
-                    }
+                    { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' }
                 ] 
             });
             rtcPeer.onicecandidate = async (event) => { if (event.candidate) await sendSignal('RTC_ICE:' + JSON.stringify(event.candidate)); };
@@ -337,6 +517,9 @@
             document.getElementById('airdropStatus').style.color = "var(--text-muted)";
             document.getElementById('dropZone').style.borderColor = "var(--border)";
         }
+
+        // Initialize
+        renderAltSites();
     </script>
 </body>
 </html>
