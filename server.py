@@ -86,46 +86,54 @@ def extract_media():
         except Exception:
             pass
 
-    # YT-DLP WITH IOS SPOOFING TO BYPASS BOT CHECK
-    ydl_opts = {
-        'format': 'best[ext=mp4]/best',
-        'quiet': True,
-        'no_warnings': True,
-        'nocheckcertificate': True,
-        'extractor_args': {
-            'youtube': {
-                'player_client': ['ios', 'android', 'mweb'],
-                'player_skip': ['webpage', 'configs'],
-            }
-        },
-        'http_headers': {
-            'User-Agent': 'com.google.ios.youtube/19.09.3 (iPhone14,3; U; CPU iOS 15_6 like Mac OS X)'
-        }
-    }
+    # Fallback chain: try TV, then mweb, then standard iOS
+    client_strategies = [
+        ['tv'],  # Smart TV client is often less strict
+        ['mweb'], # Mobile web client
+        ['ios']   # Original fallback
+    ]
     
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            direct_url = info.get('url')
-            if not direct_url and 'formats' in info:
-                for f in reversed(info['formats']):
-                    if f.get('url') and f.get('ext') == 'mp4':
-                        direct_url = f['url']
-                        break
-                if not direct_url:
-                    direct_url = info['formats'][-1].get('url')
+    for clients in client_strategies:
+        ydl_opts = {
+            'format': 'best[ext=mp4]/best',
+            'quiet': True,
+            'no_warnings': True,
+            'nocheckcertificate': True,
+            'extractor_args': {
+                'youtube': {
+                    'player_client': clients,
+                    'player_skip': ['webpage', 'configs'],
+                }
+            },
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+            }
+        }
+        
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                direct_url = info.get('url')
+                if not direct_url and 'formats' in info:
+                    for f in reversed(info['formats']):
+                        if f.get('url') and f.get('ext') == 'mp4':
+                            direct_url = f['url']
+                            break
+                    if not direct_url:
+                        direct_url = info['formats'][-1].get('url')
 
-            if direct_url:
-                return jsonify({
-                    "title": info.get("title", "Media"),
-                    "url": direct_url,
-                    "thumbnail": info.get("thumbnail", ""),
-                    "ext": info.get("ext", "mp4"),
-                    "uploader": info.get("uploader", "Unknown")
-                })
-            return jsonify({"error": "Could not find a direct video link."})
-    except Exception as e:
-        return jsonify({"error": str(e)})
+                if direct_url:
+                    return jsonify({
+                        "title": info.get("title", "Media"),
+                        "url": direct_url,
+                        "thumbnail": info.get("thumbnail", ""),
+                        "ext": info.get("ext", "mp4"),
+                        "uploader": info.get("uploader", "Unknown")
+                    })
+        except Exception:
+            continue # Try the next client strategy
+            
+    return jsonify({"error": "All extraction methods failed. YouTube is blocking the server."})
 
 @app.route("/api/download")
 def download_file():
