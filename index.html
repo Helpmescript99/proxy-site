@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minxy Utility</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap');
         
@@ -34,7 +33,7 @@
                               radial-gradient(circle at bottom left, rgba(0, 120, 212, 0.15), transparent 50%);
         }
 
-        /* Mobile Header (Hidden on Desktop) */
+        /* Mobile Header */
         .mobile-header {
             display: none;
             align-items: center;
@@ -61,6 +60,7 @@
             flex-direction: column;
             z-index: 200;
             transition: transform 0.3s ease;
+            user-select: none; /* Fix for blue highlight */
         }
         .logo-area { padding: 25px 20px; border-bottom: 1px solid var(--border); }
         .logo { font-size: 22px; font-weight: 800; background: linear-gradient(90deg, #00a884, #0078d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -71,9 +71,9 @@
         }
         .nav-item:hover { background: var(--surface-hover); color: var(--text); }
         .nav-item.active { background: var(--surface-hover); color: var(--text); border-color: var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .nav-item img { width: 20px; height: 20px; opacity: 0.8; }
+        .nav-item img { width: 20px; height: 20px; opacity: 0.8; pointer-events: none; }
 
-        /* Backdrop for Mobile Menu */
+        /* Backdrop */
         .menu-backdrop {
             display: none;
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -136,11 +136,6 @@
         .alt-item:hover { background: var(--surface-hover); }
         .alt-item img { width: 20px; }
         
-        /* QR & Image & Player */
-        .qr-container { display: flex; justify-content: center; padding: 20px; background: white; border-radius: 12px; width: max-content; margin: 0 auto; }
-        .image-preview { max-width: 100%; max-height: 400px; border-radius: 12px; display: none; margin: 0 auto; }
-        #playerVideo { width: 100%; border-radius: 12px; background: #000; max-height: 500px; }
-        
         /* AirDrop & Clipboard */
         .drop-zone { height: 200px; border: 2px dashed var(--border); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-muted); cursor: pointer; transition: 0.2s; background: rgba(0,0,0,0.2); }
         .drop-zone:hover { border-color: var(--primary); background: rgba(0, 168, 132, 0.05); }
@@ -152,37 +147,24 @@
         .spinner { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* --- MOBILE RESPONSIVE FIXES --- */
+        /* Mobile */
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .mobile-header { display: flex; }
-            
-            .sidebar {
-                position: fixed;
-                left: 0; top: 0;
-                transform: translateX(-100%);
-                height: 100vh;
-                width: 280px;
-            }
+            .sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); height: 100vh; width: 280px; }
             .sidebar.open { transform: translateX(0); }
             .menu-backdrop.open { display: block; }
-
             .main-content { padding-top: 60px; }
             .app-view { padding: 20px 15px; }
-            
             .header-title { font-size: 24px; }
             .header-desc { font-size: 14px; }
-            
             .input-group { flex-direction: column; }
             .btn, .btn-icon { width: 100%; padding: 14px; }
-            
             .downloader-wrapper { flex-direction: column; }
             .alt-sites-panel.open { width: 100%; margin-left: 0; margin-top: 10px; }
-            
             .result-header { flex-direction: column; gap: 10px; }
             .result-header div:last-child { width: 100%; display: flex; justify-content: space-between; }
             .result-header .btn { width: 48%; padding: 10px; font-size: 13px; }
-            
             .glass-panel { padding: 20px; }
         }
     </style>
@@ -203,10 +185,6 @@
             <div class="nav-item active" onclick="navTo('downloader', this)"><img src="https://img.icons8.com/color/48/000000/download.png"> Downloader</div>
             <div class="nav-item" onclick="navTo('airdrop', this)"><img src="https://img.icons8.com/color/48/000000/airdrop.png"> AirDrop</div>
             <div class="nav-item" onclick="navTo('clipboard', this)"><img src="https://img.icons8.com/color/48/000000/clipboard.png"> Cloud Clipboard</div>
-            <div class="nav-item" onclick="navTo('player', this)"><img src="https://img.icons8.com/color/48/000000/video-playlist.png"> URL Player</div>
-            <div class="nav-item" onclick="navTo('image', this)"><img src="https://img.icons8.com/color/48/000000/image.png"> Image Converter</div>
-            <div class="nav-item" onclick="navTo('qr', this)"><img src="https://img.icons8.com/color/48/000000/qr-code.png"> QR Generator</div>
-            <div class="nav-item" onclick="navTo('browser', this)"><img src="https://img.icons8.com/color/48/000000/internet.png"> Bypass Browser</div>
         </div>
     </div>
 
@@ -312,57 +290,6 @@
             </div>
         </div>
 
-        <!-- 4. URL Player -->
-        <div id="app-player" class="app-view">
-            <div class="header-title">URL Video Player</div>
-            <div class="header-desc">Paste a direct .mp4 or .m3u8 link.</div>
-            <div class="glass-panel" style="width: 100%; max-width: 800px;">
-                <div class="input-group">
-                    <input type="text" id="playerUrl" class="input-field" placeholder="https://example.com/video.mp4" onkeypress="if(event.key==='Enter') playUrlVideo()">
-                    <button class="btn btn-blue" onclick="playUrlVideo()">Play</button>
-                </div>
-                <video id="playerVideo" controls style="display:none;"></video>
-            </div>
-        </div>
-
-        <!-- 5. Image Converter -->
-        <div id="app-image" class="app-view">
-            <div class="header-title">Image Converter</div>
-            <div class="header-desc">Convert PNG/WebP to JPG locally.</div>
-            <div class="glass-panel" style="width: 100%; max-width: 800px;">
-                <input type="file" id="imgInput" accept="image/*" onchange="convertImage(this.files[0])" style="display:none;">
-                <button class="btn btn-blue" onclick="document.getElementById('imgInput').click()">Select Image</button>
-                <img id="imgPreview" class="image-preview">
-                <a id="imgDownloadBtn" class="btn btn-green" style="display:none;" download="converted.jpg">Download JPG</a>
-            </div>
-        </div>
-
-        <!-- 6. QR Generator -->
-        <div id="app-qr" class="app-view">
-            <div class="header-title">QR Generator</div>
-            <div class="header-desc">Create scannable codes instantly.</div>
-            <div class="glass-panel" style="width: 100%; max-width: 500px;">
-                <div class="input-group">
-                    <input type="text" id="qrText" class="input-field" placeholder="Enter URL or text..." onkeypress="if(event.key==='Enter') generateQR()">
-                    <button class="btn btn-blue" onclick="generateQR()">Generate</button>
-                </div>
-                <div id="qrcode" class="qr-container"></div>
-            </div>
-        </div>
-
-        <!-- 7. Bypass Browser -->
-        <div id="app-browser" class="app-view">
-            <div class="header-title">Bypass Browser</div>
-            <div class="header-desc">Read text-only sites via CORS proxy.</div>
-            <div class="glass-panel" style="width: 100%; max-width: 900px; flex:1;">
-                <div class="input-group">
-                    <input type="text" id="corsUrl" class="input-field" placeholder="https://en.wikipedia.org/wiki/Main_Page">
-                    <button class="btn btn-blue" onclick="loadCorsSite()">Load</button>
-                </div>
-                <iframe id="corsFrame" style="width:100%; height:100%; min-height:400px; border:none; background:white; border-radius:12px; margin-top:15px; display:none;"></iframe>
-            </div>
-        </div>
-
     </div>
 
     <script>
@@ -378,11 +305,7 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(`app-${appId}`).classList.add('active');
             el.classList.add('active');
-            
-            // Close menu on mobile after clicking
-            if (window.innerWidth <= 768) {
-                toggleMenu();
-            }
+            if (window.innerWidth <= 768) toggleMenu();
         }
 
         // --- Downloader Logic ---
@@ -427,38 +350,62 @@
             }
         }
 
-        // --- Shared WebRTC Setup ---
+        // --- Shared WebRTC Setup (Hardened) ---
         async function initRTC(room, onOpen, onMessage) {
             const myId = "RTC_" + Math.random().toString(36).substring(2, 9);
             let sentOffer = false;
             let pendingIceCandidates = [];
             
-            const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' }] });
-            const channel = pc.createDataChannel("data");
+            // Added TCP TURN servers for strict mobile NATs
+            const pc = new RTCPeerConnection({ 
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+                    { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+                    { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+                ] 
+            });
             
+            const channel = pc.createDataChannel("data");
             channel.onopen = onOpen;
             channel.onmessage = onMessage;
             channel.binaryType = 'arraybuffer';
             
-            pc.onicecandidate = async (e) => { if (e.candidate) await sendSignal(room, myId, 'ICE:' + JSON.stringify(e.candidate)); };
+            pc.onicecandidate = async (e) => { 
+                if (e.candidate) await sendSignal(room, myId, 'ICE:' + JSON.stringify(e.candidate)); 
+            };
+            
             pc.ondatachannel = (e) => {
                 e.channel.onopen = onOpen;
                 e.channel.onmessage = onMessage;
                 e.channel.binaryType = 'arraybuffer';
             };
 
+            pc.oniceconnectionstatechange = () => {
+                if (pc.iceConnectionState === 'failed') {
+                    console.log("WebRTC Failed. Check network/firewall.");
+                }
+            };
+
             async function sendSignal(r, id, text) {
                 await fetch('/api/chat/' + r, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: id, text: text}) });
             }
+            
             async function createOffer() {
-                if(sentOffer) return; sentOffer = true;
-                const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
+                if(sentOffer) return; 
+                sentOffer = true;
+                const offer = await pc.createOffer(); 
+                await pc.setLocalDescription(offer);
                 await sendSignal(room, myId, 'OFFER:' + JSON.stringify(offer));
             }
+            
             await sendSignal(room, myId, 'JOIN');
             
             const poll = setInterval(async () => {
-                const res = await fetch('/api/chat/' + room); const data = await res.json();
+                const res = await fetch('/api/chat/' + room); 
+                const data = await res.json();
+                
                 for (const msg of data.messages) {
                     if (msg.user === myId) continue;
                     if (msg.text === 'JOIN' && !sentOffer) await createOffer();
@@ -467,9 +414,12 @@
                         const polite = myId > msg.user;
                         if (pc.signalingState === 'have-local-offer' && !polite) continue;
                         if (pc.signalingState === 'have-local-offer' && polite) await pc.setLocalDescription({type: "rollback"});
+                        
                         await pc.setRemoteDescription(offer);
-                        const answer = await pc.createAnswer(); await pc.setLocalDescription(answer);
+                        const answer = await pc.createAnswer(); 
+                        await pc.setLocalDescription(answer);
                         await sendSignal(room, myId, 'ANSWER:' + JSON.stringify(answer));
+                        
                         for (const c of pendingIceCandidates) await pc.addIceCandidate(new RTCIceCandidate(c)).catch(e=>{});
                         pendingIceCandidates = [];
                     }
@@ -499,15 +449,24 @@
             document.getElementById('airdropRoomDisplay').innerText = room;
             
             airdropRtc = await initRTC(room, 
-                () => { document.getElementById('airdropStatus').innerText = "Connected! Ready."; document.getElementById('airdropStatus').style.color = "var(--primary)"; },
+                () => { 
+                    document.getElementById('airdropStatus').innerText = "Connected! Ready."; 
+                    document.getElementById('airdropStatus').style.color = "var(--primary)"; 
+                },
                 (e) => {
                     if (typeof e.data === 'string') {
                         const meta = JSON.parse(e.data);
-                        if (meta.type === 'start') { incomingFile = meta; receivedBuffers = []; document.getElementById('airdropProgress').style.display = 'block'; document.getElementById('airdropStatus').innerText = "Receiving: " + meta.name; }
+                        if (meta.type === 'start') { 
+                            incomingFile = meta; receivedBuffers = []; 
+                            document.getElementById('airdropProgress').style.display = 'block'; 
+                            document.getElementById('airdropStatus').innerText = "Receiving: " + meta.name; 
+                        }
                         else if (meta.type === 'end') {
-                            const blob = new Blob(receivedBuffers); const url = URL.createObjectURL(blob);
+                            const blob = new Blob(receivedBuffers); 
+                            const url = URL.createObjectURL(blob);
                             const a = document.createElement('a'); a.href = url; a.download = incomingFile.name; a.click();
-                            document.getElementById('airdropProgress').style.display = 'none'; document.getElementById('airdropStatus').innerText = "File received!";
+                            document.getElementById('airdropProgress').style.display = 'none'; 
+                            document.getElementById('airdropStatus').innerText = "File received!";
                         }
                     } else {
                         receivedBuffers.push(e.data);
@@ -548,60 +507,6 @@
         }
         function sendClipText(text) { if(clipRtc && clipRtc.channel.readyState === 'open') clipRtc.channel.send(text); }
         function leaveClipboard() { if(clipRtc) clipRtc.stop(); document.getElementById('clipJoin').style.display = 'flex'; document.getElementById('clipActive').style.display = 'none'; }
-
-        // --- URL Player Logic ---
-        function playUrlVideo() {
-            const url = document.getElementById('playerUrl').value.trim();
-            if(!url) return;
-            const vid = document.getElementById('playerVideo');
-            vid.src = url; vid.style.display = 'block'; vid.play();
-        }
-
-        // --- Image Converter Logic ---
-        function convertImage(file) {
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width; canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    const jpgUrl = canvas.toDataURL('image/jpeg', 0.9);
-                    
-                    const preview = document.getElementById('imgPreview');
-                    preview.src = jpgUrl; preview.style.display = 'block';
-                    
-                    const dlBtn = document.getElementById('imgDownloadBtn');
-                    dlBtn.href = jpgUrl; dlBtn.style.display = 'flex';
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // --- QR Logic ---
-        let qrCodeObj = null;
-        function generateQR() {
-            const text = document.getElementById('qrText').value.trim();
-            if(!text) return;
-            document.getElementById('qrcode').innerHTML = '';
-            qrCodeObj = new QRCode(document.getElementById('qrcode'), {
-                text: text, width: 200, height: 200,
-                colorDark : "#000000", colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-        }
-
-        // --- Bypass Browser Logic ---
-        function loadCorsSite() {
-            const url = document.getElementById('corsUrl').value.trim();
-            if(!url) return;
-            const frame = document.getElementById('corsFrame');
-            frame.style.display = 'block';
-            frame.src = 'https://corsproxy.io/?' + encodeURIComponent(url);
-        }
     </script>
 </body>
 </html>
